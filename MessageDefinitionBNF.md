@@ -3,7 +3,7 @@
 ```bnf
 Protocol := (<Message>)*
 
-Message := <identifier> <openBrace> (<MessageField>)+ <closeBrace>
+Message := <identifier> <openBrace> (<Field>)+ <closeBrace>
 
 Field := <identifier> <FieldType> (<Attribute>)* <lineEnd>
 

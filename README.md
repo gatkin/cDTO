@@ -1,8 +1,34 @@
 # cDTO - Data Transport Objects for C
 
-cDTO is a tool for defining data transport objects for the C language that can be easily serialized to and from various web message interchange formats such as XML and JSON allowing developers to build REST clients and REST services in C without needing to write all the boilerplate code necessary to validate, serialize, and deserialize C data types to the various message formats.
+cDTO is a tool for defining data transport objects for the C language and generating the procedures necessary to transform them to and from various message interchange formats, such as XML and JSON. The goal of cDTO is to enable developers to build REST clients and REST services in C without writing all the boilerplate code necessary to validate and transform C data types between message formats.
 
-Suppose we wanted to build a REST client to retrieve information about GitHub issues through the GitHub REST API. With cDTO, we would first define our messages in a message definition file "github_issues.cdto"
+This project is currently incomplete and under active development. The rest of this document outlines the vision for how cDTO might work.
+
+
+## Using cDTO
+Suppose we wanted to build a REST client to retrieve information about GitHub issues through the GitHub REST API. Our REST client would receive JSON data such as
+```json
+{
+"url": "https://api.github.com/repos/facebook/react/issues/8795",
+  "number": 8795,
+  "title": "Large update to tutorial.md's refactor section.",
+  "user": {
+    "login": "Jwan622",
+    "url": "https://api.github.com/users/Jwan622",
+  },
+  "labels": [
+    {
+      "name": "CLA Signed",
+      "color": "e7e7e7",
+    },
+    {
+      "name": "GH Review: needs-revision",
+      "color": "e11d21",
+    },
+    "assignees": []
+}
+```
+To use cDTO to consume these JSON messages in our REST client, we would first define our messages in a message definition file, "github_issues.cdto"
 ```
 issue {
     number Number;
@@ -66,9 +92,12 @@ void issue_free
   );
 ```
 
-JSON deserialization and serialization procedures would also be generated for the C DTO types. The serialization functions handle validation of any JSON string input and will return an error if the JSON does not match the expected message format.
+JSON deserialization and serialization procedures would be generated for the C DTO types. The serialization functions will handle validation of all JSON input strings and will return an error if the JSON does not match the expected message format.
 ```C
 // Header github_issues.cdto.json.h
+
+#include "github_issues.cdto.h"
+
 int label_json_parse
   (
   char const * json,
