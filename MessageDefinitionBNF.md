@@ -7,11 +7,13 @@ Message := <identifier> <openBrace> (<Field>)+ <closeBrace>
 
 Field := <identifier> <FieldType> (<Attribute>)* <lineEnd>
 
-FieldType := <string> | <number> | <boolean> | <Array> | <FixedString>
+FieldType := <string> | <number> | <boolean> | <Array> | <FixedString> | <Object>
 
 Array := <array> <arrayOpen> <FieldType> <arrayClose>
 
 FixedString := <string> <arrayOpen> <integerLiteral> <arrayClose>
+
+Object := <identifier>
 
 Attribute := <AttributeName> <equals> <AttributeValue>
 
