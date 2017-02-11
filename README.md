@@ -9,22 +9,23 @@ This project is currently incomplete and under active development. The rest of t
 Suppose we wanted to build a REST client to retrieve information about GitHub issues through the GitHub REST API. Our REST client would receive JSON data such as
 ```json
 {
-"url": "https://api.github.com/repos/facebook/react/issues/8795",
-  "number": 8795,
-  "title": "Large update to tutorial.md's refactor section.",
-  "user": {
-    "login": "Jwan622",
-    "url": "https://api.github.com/users/Jwan622",
-  },
-  "labels": [
-    {
-      "name": "CLA Signed",
-      "color": "e7e7e7",
+    "url": "https://api.github.com/repos/facebook/react/issues/8795",
+    "number": 8795,
+    "title": "Large update to tutorial.md's refactor section.",
+    "user": {
+        "login": "Jwan622",
+        "url": "https://api.github.com/users/Jwan622"
     },
-    {
-      "name": "GH Review: needs-revision",
-      "color": "e11d21",
-    },
+    "labels": [
+        {
+        "name": "CLA Signed",
+        "color": "e7e7e7"
+        },
+        {
+        "name": "GH Review: needs-revision",
+        "color": "e11d21"
+        }
+    ],
     "assignees": []
 }
 ```
@@ -147,12 +148,12 @@ int main()
     "\"title\": \"Large update to tutorial.md's refactor section.\","
     "\"user\": {"
       "\"login\": \"Jwan622\","
-      "\"url\": \"https://api.github.com/users/Jwan622\","
+      "\"url\": \"https://api.github.com/users/Jwan622\""
     "},"
     "\"labels\": ["
       "{"
         "\"name\": \"CLA Signed\","
-        "\"color\": \"e7e7e7\","
+        "\"color\": \"e7e7e7\"
       "},"
     "],"
     "\"assignees\": []"
