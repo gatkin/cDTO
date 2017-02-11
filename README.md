@@ -143,6 +143,8 @@ int main()
     }
 
   issue_free( &issue );
+
+  return 0;
 }
 
 ```
