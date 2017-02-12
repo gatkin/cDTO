@@ -1,8 +1,8 @@
 package compiler
 
-import org.scalatest.{FlatSpec, Matchers}
+import dto.UnitSpec
 
-class ParserSpec extends FlatSpec with Matchers {
+class ProtocolParserSpec extends UnitSpec {
 
   val validInput =
     """
