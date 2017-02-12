@@ -41,11 +41,11 @@ object ProtocolParser extends RegexParsers {
   }
 
   private def cTypeAttribute: Parser[CTypeAttribute] = {
-    "cType" ~ equals ~ identifier ^^ { case _ ~ _ ~ Identifier(cType) => CTypeAttribute(cType)}
+    Constants.C_TYPE_ATTRIBUTE ~ equals ~ identifier ^^ { case _ ~ _ ~ Identifier(cType) => CTypeAttribute(cType)}
   }
 
   private def jsonKeyAttribute: Parser[JSONKeyAttribute] = {
-    "jsonKey" ~ equals ~ identifier ^^ { case _ ~ _ ~ Identifier(key) => JSONKeyAttribute(key) }
+    Constants.JSON_KEY_ATTRIBUTE ~ equals ~ identifier ^^ { case _ ~ _ ~ Identifier(key) => JSONKeyAttribute(key) }
   }
 
   /*
