@@ -1,4 +1,4 @@
-# cDTO - Data Transport Objects for C
+# cDTO - Data Transport Objects for C [![Build Status](https://travis-ci.org/gatkin/cDTO.svg?branch=master)](https://travis-ci.org/gatkin/cDTO)
 
 cDTO is a tool for defining data transport objects for the C language and generating the procedures necessary to transform them to and from various message interchange formats, such as XML and JSON. The goal of cDTO is to enable developers to build REST clients and REST services in C without writing all the boilerplate code necessary to validate and transform C data types between message formats.
 
