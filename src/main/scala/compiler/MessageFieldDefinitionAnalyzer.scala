@@ -14,7 +14,7 @@ object MessageFieldDefinitionAnalyzer {
     * @return Field that corresponds to the definition or an error if the definition
     *         is invalid
     */
-  def apply(definition: FieldDefinition): Either[MessageFieldError, Field] = {
+  def apply(definition: FieldDefinition): Either[FieldDefinitionError, Field] = {
      for {
        fieldType <- fieldTypeGet(definition).right
        jsonKey <- jsonKeyGet(definition).right
@@ -26,7 +26,7 @@ object MessageFieldDefinitionAnalyzer {
     * @param definition - Field definition
     * @return Type of field or an error if the field definition is invalid
     */
-  private def fieldTypeGet(definition: FieldDefinition): Either[MessageFieldError, FieldType] = {
+  private def fieldTypeGet(definition: FieldDefinition): Either[FieldDefinitionError, FieldType] = {
     val baseType = baseTypeGet(definition.fieldType)
 
     val cTypeAttribute = definition.attributes.collect({ case CTypeAttribute(cType) => cType })
@@ -91,7 +91,7 @@ object MessageFieldDefinitionAnalyzer {
     * @return Either the field's JSON key or an error if duplicate JSON key attributes were
     *         provided
     */
-  private def jsonKeyGet(definition: FieldDefinition): Either[MessageFieldError, String] = {
+  private def jsonKeyGet(definition: FieldDefinition): Either[FieldDefinitionError, String] = {
     val jsonKeyAttribute = definition.attributes.collect({ case JSONKeyAttribute(key) => key })
 
     jsonKeyAttribute match {
