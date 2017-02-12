@@ -21,15 +21,15 @@ object ProtocolParser extends RegexParsers {
     phrase(rep(message)) ^^ { case messages => ProtocolAST(messages) }
   }
 
-  private def message: Parser[Message] = {
+  private def message: Parser[MessageDefinition] = {
     identifier ~ openBrace ~ rep1(field) ~ closeBrace ^^ {
-      case Identifier(name) ~ _ ~ fields ~ _ => Message(name, fields)
+      case Identifier(name) ~ _ ~ fields ~ _ => MessageDefinition(name, fields)
     }
   }
 
-  private def field: Parser[Field] = {
+  private def field: Parser[FieldDefinition] = {
     identifier ~ fieldType ~ rep(fieldAttribute) ~ lineEnd ^^ {
-      case Identifier(name) ~ fType ~ attributes ~ _ => Field(name, fType, attributes)
+      case Identifier(name) ~ fType ~ attributes ~ _ => FieldDefinition(name, fType, attributes)
     }
   }
 
@@ -51,36 +51,36 @@ object ProtocolParser extends RegexParsers {
   /*
   * Parsers and recognizers for field types
   */
-  private def fieldType: Parser[FieldType] = {
+  private def fieldType: Parser[FieldTypeDefinition] = {
     numberType | booleanType | fixedStringType | dynamicStringType | arrayType | objectType
   }
 
-  private def arrayType: Parser[ArrayType] = {
+  private def arrayType: Parser[ArrayTypeDefinition] = {
     "Array" ~ arrayOpen ~ fieldType ~ arrayClose ^^ {
-      case _ ~ _ ~ elementType ~ _ => ArrayType(elementType)
+      case _ ~ _ ~ elementType ~ _ => ArrayTypeDefinition(elementType)
     }
   }
 
-  private def booleanType: Parser[BooleanType] = {
-    "Boolean" ^^ { _ => BooleanType() }
+  private def booleanType: Parser[BooleanTypeDefinition] = {
+    "Boolean" ^^ { _ => BooleanTypeDefinition() }
   }
 
-  private def dynamicStringType: Parser[DynamicStringType] = {
-    stringType ^^ { _ => DynamicStringType() }
+  private def dynamicStringType: Parser[DynamicStringTypeDefinition] = {
+    stringType ^^ { _ => DynamicStringTypeDefinition() }
   }
 
-  private def fixedStringType: Parser[FixedStringType] = {
+  private def fixedStringType: Parser[FixedStringTypeDefinition] = {
     stringType ~ arrayOpen ~ integerLiteral ~ arrayClose ^^ {
-      case  _ ~ _ ~ IntegerLiteral(maxLength) ~ _ => FixedStringType(maxLength)
+      case  _ ~ _ ~ IntegerLiteral(maxLength) ~ _ => FixedStringTypeDefinition(maxLength)
     }
   }
 
-  private def numberType: Parser[NumberType] = {
-    "Number" ^^ { _ => NumberType() }
+  private def numberType: Parser[NumberTypeDefinition] = {
+    "Number" ^^ { _ => NumberTypeDefinition() }
   }
 
-  private def objectType: Parser[ObjectType] = {
-    identifier ^^ { case Identifier(objectName) => ObjectType(objectName) }
+  private def objectType: Parser[ObjectTypeDefinition] = {
+    identifier ^^ { case Identifier(objectName) => ObjectTypeDefinition(objectName) }
   }
 
   /*

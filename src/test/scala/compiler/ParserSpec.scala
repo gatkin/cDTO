@@ -28,22 +28,22 @@ class ParserSpec extends FlatSpec with Matchers {
   """.stripMargin
 
   val successfulAST = ProtocolAST(List(
-    Message("issue", List(
-      Field("number", NumberType(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
-      Field("url", DynamicStringType(), List()),
-      Field("title", DynamicStringType(), List()),
-      Field("creator", ObjectType("user"), List(JSONKeyAttribute("user"))),
-      Field("assignees", ArrayType(ObjectType("user")), List()),
-      Field("labels", ArrayType(ObjectType("label")), List()),
-      Field("is_open", BooleanType(), List())
+    MessageDefinition("issue", List(
+      FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
+      FieldDefinition("url", DynamicStringTypeDefinition(), List()),
+      FieldDefinition("title", DynamicStringTypeDefinition(), List()),
+      FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"))),
+      FieldDefinition("assignees", ArrayTypeDefinition(ObjectTypeDefinition("user")), List()),
+      FieldDefinition("labels", ArrayTypeDefinition(ObjectTypeDefinition("label")), List()),
+      FieldDefinition("is_open", BooleanTypeDefinition(), List())
     )),
-    Message("user", List(
-      Field("name", DynamicStringType(), List(JSONKeyAttribute("login"))),
-      Field("url", DynamicStringType(), List())
+    MessageDefinition("user", List(
+      FieldDefinition("name", DynamicStringTypeDefinition(), List(JSONKeyAttribute("login"))),
+      FieldDefinition("url", DynamicStringTypeDefinition(), List())
     )),
-    Message("label", List(
-      Field("name", DynamicStringType(), List()),
-      Field("color", FixedStringType(6), List())
+    MessageDefinition("label", List(
+      FieldDefinition("name", DynamicStringTypeDefinition(), List()),
+      FieldDefinition("color", FixedStringTypeDefinition(6), List())
     ))
   ))
 
@@ -56,8 +56,8 @@ class ParserSpec extends FlatSpec with Matchers {
     """.stripMargin
 
   val nestedArraysAST = ProtocolAST(List(
-    Message("user", List(
-      Field("convolutedField", ArrayType(ArrayType(ArrayType(NumberType()))), List())
+    MessageDefinition("user", List(
+      FieldDefinition("convolutedField", ArrayTypeDefinition(ArrayTypeDefinition(ArrayTypeDefinition(NumberTypeDefinition()))), List())
     ))
   ))
 
@@ -70,8 +70,8 @@ class ParserSpec extends FlatSpec with Matchers {
     """.stripMargin
 
   val arrayOfFixedStringsAST = ProtocolAST(List(
-    Message("user", List(
-      Field("ids", ArrayType(FixedStringType(32)), List())
+    MessageDefinition("user", List(
+      FieldDefinition("ids", ArrayTypeDefinition(FixedStringTypeDefinition(32)), List())
     ))
   ))
 
