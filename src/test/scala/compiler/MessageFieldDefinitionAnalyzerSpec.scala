@@ -30,34 +30,34 @@ class MessageFieldDefinitionAnalyzerSpec extends UnitSpec{
 
 
   "Message field definition analyzer" should "accept a valid field definition" in {
-    MessageFieldDefinitionAnalyzer(validFieldDef) shouldBe Right(validField)
+    FieldDefinitionAnalyzer(validFieldDef) shouldBe Right(validField)
   }
 
   it should "accept valid C-type aliases" in {
-    MessageFieldDefinitionAnalyzer(aliasedTypeFieldDef) shouldBe Right(aliasedTypeField)
+    FieldDefinitionAnalyzer(aliasedTypeFieldDef) shouldBe Right(aliasedTypeField)
   }
 
   it should "accept valid C-type aliases of array elements" in {
-    MessageFieldDefinitionAnalyzer(aliasedArrayFieldDef) shouldBe Right(aliasedArrayField)
+    FieldDefinitionAnalyzer(aliasedArrayFieldDef) shouldBe Right(aliasedArrayField)
   }
 
   it should "use a default value for the JSON key if none was provided" in {
-    MessageFieldDefinitionAnalyzer(noJsonKeyFieldDef) shouldBe Right(noJsonKeyField)
+    FieldDefinitionAnalyzer(noJsonKeyFieldDef) shouldBe Right(noJsonKeyField)
   }
 
   it should "not accept a definition with duplicate JSON key attributes" in {
-    MessageFieldDefinitionAnalyzer(duplicateJsonKeyDef) shouldBe Left(duplicateJsonKeyError)
+    FieldDefinitionAnalyzer(duplicateJsonKeyDef) shouldBe Left(duplicateJsonKeyError)
   }
 
   it should "not accept a definition with duplicate C-type attributes" in {
-    MessageFieldDefinitionAnalyzer(duplicateCTypeDef) shouldBe Left(duplicateCTypeError)
+    FieldDefinitionAnalyzer(duplicateCTypeDef) shouldBe Left(duplicateCTypeError)
   }
 
   it should "not accept a definition with an invalid C-type alias" in {
-    MessageFieldDefinitionAnalyzer(badAliasDef) shouldBe Left(badAliasError)
+    FieldDefinitionAnalyzer(badAliasDef) shouldBe Left(badAliasError)
   }
 
   it should "not accept a definition with an invalid C-type array alias" in {
-    MessageFieldDefinitionAnalyzer(badArrayAliasDef) shouldBe Left(badArrayAliasError)
+    FieldDefinitionAnalyzer(badArrayAliasDef) shouldBe Left(badArrayAliasError)
   }
 }

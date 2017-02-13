@@ -6,7 +6,7 @@ import datamodel._
   * Contains functionality for analyzing and validating parsed definitions of
   * message fields
   */
-object MessageFieldDefinitionAnalyzer {
+object FieldDefinitionAnalyzer {
 
   /**
     * Analyzes and validates the provided parsed field definition

@@ -28,7 +28,7 @@ object MessageDefinitionAnalyzer {
     *         of fields corresponding to the definition
     */
   def fieldsGetAll(definition: MessageDefinition): Either[MessageDefinitionError, Seq[Field]] = {
-    val fields =  definition.fields.map(field => MessageFieldDefinitionAnalyzer(field))
+    val fields =  definition.fields.map(field => FieldDefinitionAnalyzer(field))
 
     val errors = fields.flatMap(field => field.left.toOption)
     val validFields = fields.flatMap(field => field.right.toOption)
