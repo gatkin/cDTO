@@ -10,7 +10,7 @@ case class ProtocolAST(messages: Seq[MessageDefinition]) extends Positional
 
 case class MessageDefinition(name: String, fields: Seq[FieldDefinition]) extends Positional
 
-case class FieldDefinition(name: String, fieldType: FieldTypeDefinition, attributes: Seq[FieldAttribute])
+case class FieldDefinition(name: String, fieldType: FieldTypeDefinition, attributes: Seq[FieldAttribute]) extends Positional
 
 sealed trait FieldTypeDefinition extends Positional
 case class ArrayTypeDefinition(elementType: FieldTypeDefinition) extends FieldTypeDefinition
