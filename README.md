@@ -137,7 +137,7 @@ int issue_json_serialize
 ```
 We can now process JSON data received from the GitHub API
 ```C
-#incldue <stdio.h>
+#include <stdio.h>
 #include "github_issues.cdto.json.h"
 
 int main()
@@ -153,7 +153,7 @@ int main()
     "\"labels\": ["
       "{"
         "\"name\": \"CLA Signed\","
-        "\"color\": \"e7e7e7\"
+        "\"color\": \"e7e7e7\""
       "},"
     "],"
     "\"assignees\": []"
