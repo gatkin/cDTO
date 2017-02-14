@@ -3,7 +3,7 @@ package compiler
 import datamodel._
 import dto.UnitSpec
 
-class MessageFieldDefinitionAnalyzerSpec extends UnitSpec{
+class FieldDefinitionAnalyzerSpec extends UnitSpec{
   val validFieldDef = FieldDefinition("user_name", DynamicStringTypeDefinition(), List(JSONKeyAttribute("userName")))
   val validField = Field("user_name", DynamicStringType, "userName")
 
