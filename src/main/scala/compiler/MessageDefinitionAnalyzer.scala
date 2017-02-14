@@ -35,7 +35,7 @@ object MessageDefinitionAnalyzer {
 
     errors match {
       case Nil => Right(validFields)
-      case _ => Left(FieldErrors(errors, definition.name))
+      case _ => Left(InvalidFieldsError(errors, definition.name))
     }
   }
 
@@ -47,13 +47,13 @@ object MessageDefinitionAnalyzer {
     *         an error is returned if there are any duplicate fields.
     */
   def fieldsCheckDuplicates(fields: Seq[Field], messageName: String): Either[MessageDefinitionError, Seq[Field]] = {
-    val fieldsByName = fields.groupBy(field => field.name)
+    val fieldsByName = fields.groupBy(_.name)
 
     val duplicateFields = fieldsByName.keys.filter(fieldName => fieldsByName(fieldName).size > 1).toSeq
 
     duplicateFields match {
       case Nil => Right(fields)
-      case _ => Left(DuplicateFieldError(duplicateFields, messageName))
+      case _ => Left(DuplicateFieldsError(duplicateFields, messageName))
     }
   }
 }

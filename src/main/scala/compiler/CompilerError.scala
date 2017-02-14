@@ -8,11 +8,13 @@ sealed trait CompilerError
 case class ParserError(location: Location, errorMessage: String) extends CompilerError
 
 sealed trait SemanticError extends CompilerError
-case class ObjectTypeNotDefinedError(objectName: String, messageName: String) extends SemanticError
+case class DuplicateMessagesError(duplicateMessages: Seq[String]) extends SemanticError
+case class InvalidMessagesError(errors: Seq[MessageDefinitionError]) extends SemanticError
+case class ObjectTypesNotDefinedError(objectNames: Seq[String]) extends SemanticError
 
 sealed trait MessageDefinitionError extends SemanticError
-case class DuplicateFieldError(fields: Seq[String], messageName: String) extends MessageDefinitionError
-case class FieldErrors(errors: Seq[FieldDefinitionError], messageName: String) extends MessageDefinitionError
+case class DuplicateFieldsError(fields: Seq[String], messageName: String) extends MessageDefinitionError
+case class InvalidFieldsError(errors: Seq[FieldDefinitionError], messageName: String) extends MessageDefinitionError
 
 sealed trait FieldDefinitionError extends SemanticError
 case class DuplicateAttributeError(attribute: String, field: String) extends FieldDefinitionError

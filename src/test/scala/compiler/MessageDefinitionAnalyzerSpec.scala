@@ -21,7 +21,7 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec{
     FieldDefinition("number", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user")))
   ))
-  val duplicateFieldsError = DuplicateFieldError(List("number"), "issue")
+  val duplicateFieldsError = DuplicateFieldsError(List("number"), "issue")
 
   val multipleDuplicateFieldsDef = MessageDefinition("issue", List(
     FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
@@ -29,14 +29,14 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec{
     FieldDefinition("number", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user")))
   ))
-  val multipleDuplicateFieldsError = DuplicateFieldError(List("number", "creator"), "issue")
+  val multipleDuplicateFieldsError = DuplicateFieldsError(List("number", "creator"), "issue")
 
   val fieldErrorsDef = MessageDefinition("issue", List(
     FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"), JSONKeyAttribute("issueId"))),
     FieldDefinition("url", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"), CTypeAttribute("user_type")))
   ))
-  val fieldErrorsError = FieldErrors(List(
+  val fieldErrorsError = InvalidFieldsError(List(
     DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE, "number"),
     TypeAliasNotAllowedError(ObjectType("user").toString, "creator")
   ), "issue")
