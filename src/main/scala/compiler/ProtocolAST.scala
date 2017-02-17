@@ -13,12 +13,14 @@ case class MessageDefinition(name: String, fields: Seq[FieldDefinition]) extends
 case class FieldDefinition(name: String, fieldType: FieldTypeDefinition, attributes: Seq[FieldAttribute]) extends Positional
 
 sealed trait FieldTypeDefinition extends Positional
-case class ArrayTypeDefinition(elementType: FieldTypeDefinition) extends FieldTypeDefinition
-case class BooleanTypeDefinition() extends FieldTypeDefinition
-case class DynamicStringTypeDefinition() extends FieldTypeDefinition
-case class FixedStringTypeDefinition(maxLength: Int) extends FieldTypeDefinition
-case class NumberTypeDefinition() extends FieldTypeDefinition
-case class ObjectTypeDefinition(objectName: String) extends FieldTypeDefinition
+case class ArrayTypeDefinition(elementType: SimpleTypeDefinition) extends FieldTypeDefinition
+
+sealed trait SimpleTypeDefinition extends FieldTypeDefinition
+case class BooleanTypeDefinition() extends SimpleTypeDefinition
+case class DynamicStringTypeDefinition() extends SimpleTypeDefinition
+case class FixedStringTypeDefinition(maxLength: Int) extends SimpleTypeDefinition
+case class NumberTypeDefinition() extends SimpleTypeDefinition
+case class ObjectTypeDefinition(objectName: String) extends SimpleTypeDefinition
 
 sealed trait FieldAttribute extends Positional
 case class CTypeAttribute(cType: String) extends FieldAttribute
@@ -28,6 +30,7 @@ case class JSONKeyAttribute(key: String) extends FieldAttribute
  Tokens
  */
 case class ArrayClose() extends Positional
+case class ArrayKeyword() extends Positional
 case class ArrayOpen() extends Positional
 case class CloseBrace() extends Positional
 case class Equals() extends Positional

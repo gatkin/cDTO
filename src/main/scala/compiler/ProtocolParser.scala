@@ -52,13 +52,17 @@ object ProtocolParser extends RegexParsers {
   * Parsers and recognizers for field types
   */
   private def fieldType: Parser[FieldTypeDefinition] = {
-    numberType | booleanType | fixedStringType | dynamicStringType | arrayType | objectType
+    arrayType | simpleFieldType
   }
 
   private def arrayType: Parser[ArrayTypeDefinition] = {
-    "Array" ~ arrayOpen ~ fieldType ~ arrayClose ^^ {
+    arrayKeyword ~ arrayOpen ~ simpleFieldType ~ arrayClose ^^ {
       case _ ~ _ ~ elementType ~ _ => ArrayTypeDefinition(elementType)
     }
+  }
+
+  private def simpleFieldType: Parser[SimpleTypeDefinition] = {
+    numberType | booleanType | fixedStringType | dynamicStringType | objectType
   }
 
   private def booleanType: Parser[BooleanTypeDefinition] = {
@@ -88,6 +92,10 @@ object ProtocolParser extends RegexParsers {
   */
   private def arrayClose: Parser[ArrayClose] = {
     "]" ^^ { _ => ArrayClose() }
+  }
+
+  private def arrayKeyword: Parser[ArrayKeyword] = {
+    "Array" ^^ { _ => ArrayKeyword() }
   }
 
   private def arrayOpen: Parser[ArrayOpen] = {

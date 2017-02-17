@@ -48,20 +48,6 @@ class ProtocolParserSpec extends UnitSpec {
   ))
 
 
-  val nestedArrays =
-    """
-      | user {
-      |   convolutedField Array[Array[Array[Number]]];
-      | }
-    """.stripMargin
-
-  val nestedArraysAST = ProtocolAST(List(
-    MessageDefinition("user", List(
-      FieldDefinition("convolutedField", ArrayTypeDefinition(ArrayTypeDefinition(ArrayTypeDefinition(NumberTypeDefinition()))), List())
-    ))
-  ))
-
-
   val arrayOfFixedStrings =
     """
       | user {
@@ -121,12 +107,17 @@ class ProtocolParserSpec extends UnitSpec {
   val incompleteMessageError = ParserError(Location(6, 5), """`}' expected but end of source found""")
 
 
+  val nestedArray =
+    """
+      |message {
+      | convolutedField Array[Array[String]];
+      |}
+    """.stripMargin
+  val nestedArrayError = ParserError(Location(3,29),"`]' expected but `[' found")
+
+
   "Protocol parser" should "successfully parse a valid protocol definition" in {
     ProtocolParser(validInput) shouldBe Right(successfulAST)
-  }
-
-  it should "successfully parse nested arrays" in {
-    ProtocolParser(nestedArrays) shouldBe Right(nestedArraysAST)
   }
 
   it should "successfully parse arrays of fixed-length strings" in {
@@ -151,5 +142,9 @@ class ProtocolParserSpec extends UnitSpec {
 
   it should "fail to parse when a message definition is incomplete" in {
     ProtocolParser(incompleteMessage) shouldBe Left(incompleteMessageError)
+  }
+
+  it should "fail to parse a nested array" in {
+    ProtocolParser(nestedArray) shouldBe Left(nestedArrayError)
   }
 }
