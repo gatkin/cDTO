@@ -3,7 +3,7 @@ package compiler
 import datamodel._
 import dto.UnitSpec
 
-class FieldDefinitionAnalyzerSpec extends UnitSpec{
+class FieldDefinitionAnalyzerSpec extends UnitSpec {
   val validFieldDef = FieldDefinition("user_name", DynamicStringTypeDefinition(), List(JSONKeyAttribute("userName")))
   val validField = Field("user_name", DynamicStringType, "userName")
 
@@ -17,19 +17,19 @@ class FieldDefinitionAnalyzerSpec extends UnitSpec{
   val noJsonKeyField = Field("user", ObjectType("user"), "user")
 
   val duplicateJsonKeyDef = FieldDefinition("user_id", NumberTypeDefinition(), List(JSONKeyAttribute("userId"), CTypeAttribute("uint32_t"), JSONKeyAttribute("id")))
-  val duplicateJsonKeyError = DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE, "user_id")
+  val duplicateJsonKeyError = InvalidFieldError("user_id", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE))
 
   val duplicateCTypeDef = FieldDefinition("is_logged_in", BooleanTypeDefinition(), List(JSONKeyAttribute("isLoggedIn"), CTypeAttribute("boolean"), CTypeAttribute("int")))
-  val duplicateCTypeError = DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE, "is_logged_in")
+  val duplicateCTypeError = InvalidFieldError("is_logged_in", DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE))
 
   val badAliasDef = FieldDefinition("user", ObjectTypeDefinition("user"), List(CTypeAttribute("user_type")))
-  val badAliasError = TypeAliasNotAllowedError(ObjectType("user").toString, "user")
+  val badAliasError = InvalidFieldError("user", TypeAliasNotAllowedError(ObjectType("user").toString))
 
   val badArrayAliasDef = FieldDefinition("users", ArrayTypeDefinition(ObjectTypeDefinition("user")), List(CTypeAttribute("user_t"), JSONKeyAttribute("users")))
-  val badArrayAliasError = TypeAliasNotAllowedError(ObjectType("user").toString, "users")
+  val badArrayAliasError = InvalidFieldError("users", TypeAliasNotAllowedError(ObjectType("user").toString))
 
 
-  "Message field definition analyzer" should "accept a valid field definition" in {
+  "Field definition analyzer" should "accept a valid field definition" in {
     FieldDefinitionAnalyzer(validFieldDef) shouldBe Right(validField)
   }
 

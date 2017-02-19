@@ -37,8 +37,8 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec{
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"), CTypeAttribute("user_type")))
   ))
   val fieldErrorsError = InvalidFieldsError(List(
-    DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE, "number"),
-    TypeAliasNotAllowedError(ObjectType("user").toString, "creator")
+    InvalidFieldError("number", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE)),
+    InvalidFieldError("creator", TypeAliasNotAllowedError(ObjectType("user").toString))
   ), "issue")
 
 

@@ -14,11 +14,16 @@ object FieldDefinitionAnalyzer {
     * @return Field that corresponds to the definition or an error if the definition
     *         is invalid
     */
-  def apply(definition: FieldDefinition): Either[FieldDefinitionError, Field] = {
-     for {
+  def apply(definition: FieldDefinition): Either[InvalidFieldError, Field] = {
+     val field = for {
        fieldType <- fieldTypeGet(definition).right
        jsonKey <- jsonKeyGet(definition).right
      } yield Field(definition.name, fieldType, jsonKey)
+
+      field.fold(
+        error => Left(InvalidFieldError(definition.name, error)),
+        validField => Right(validField)
+      )
     }
 
   /**
@@ -28,31 +33,29 @@ object FieldDefinitionAnalyzer {
     */
   private def fieldTypeGet(definition: FieldDefinition): Either[FieldDefinitionError, FieldType] = {
     definition.fieldType match {
-      case ArrayTypeDefinition(elementTypeDef) => arrayFieldTypeGet(definition.name, definition.attributes, elementTypeDef)
-      case simpleTypeDef:SimpleTypeDefinition => simpleFieldTypeGet(definition.name, definition.attributes, simpleTypeDef)
+      case ArrayTypeDefinition(elementTypeDef) => arrayFieldTypeGet(elementTypeDef, definition.attributes)
+      case simpleTypeDef:SimpleTypeDefinition => simpleFieldTypeGet(simpleTypeDef, definition.attributes)
     }
   }
 
   /**
     * Gets the field type for array field.
-    * @param fieldName - Name of field
     * @param attributes - Field attributes provided in the field definition
     * @param elementTypeDef - Definition of the array's element type
     * @return An array type with the defined element type or an error if the definition is invalid.
     */
-  private def arrayFieldTypeGet(fieldName: String, attributes: Seq[FieldAttribute], elementTypeDef: SimpleTypeDefinition): Either[FieldDefinitionError, ArrayType] = {
-    simpleFieldTypeGet(fieldName, attributes, elementTypeDef)
+  private def arrayFieldTypeGet(elementTypeDef: SimpleTypeDefinition, attributes: Seq[FieldAttribute]) = {
+    simpleFieldTypeGet(elementTypeDef, attributes)
       .right.map(elementType => ArrayType(elementType))
   }
 
   /**
     * Gets the field type for a simple non-array field
-    * @param fieldName - Name of field
     * @param attributes - Field attributes provided in the field definition
     * @param typeDefinition - Definition of the field's type
     * @return Type of the field corresponding to the definition or an error if the definition is invalid
     */
-  private def simpleFieldTypeGet(fieldName: String, attributes: Seq[FieldAttribute], typeDefinition: SimpleTypeDefinition): Either[FieldDefinitionError, SimpleFieldType] = {
+  private def simpleFieldTypeGet(typeDefinition: SimpleTypeDefinition, attributes: Seq[FieldAttribute]) = {
     val simpleFieldType = typeDefinition match {
       case BooleanTypeDefinition() => BooleanType
       case DynamicStringTypeDefinition() => DynamicStringType
@@ -61,25 +64,24 @@ object FieldDefinitionAnalyzer {
       case ObjectTypeDefinition(objectName) => ObjectType(objectName)
     }
 
-    typeCheckAlias(fieldName, attributes, simpleFieldType)
+    typeCheckAlias(simpleFieldType, attributes)
   }
 
   /**
     * Checks whether the field type should be aliased based on whether an
     * C-type field attributes were provided.
-    * @param fieldName - Name of field
     * @param attributes - Field attributes provided in the field definition
     * @param fieldType - Type of the field
     * @return An aliased type if an alias was provided, the unmodified field type if no alias was
     *         specified, or an error if the definition is invalid
     */
-  private def typeCheckAlias(fieldName: String, attributes: Seq[FieldAttribute], fieldType: SimpleFieldType): Either[FieldDefinitionError, SimpleFieldType] = {
+  private def typeCheckAlias(fieldType: SimpleFieldType, attributes: Seq[FieldAttribute]) = {
     val cTypeAliases = attributes.collect({ case CTypeAttribute(cType) => cType })
-    
+
     cTypeAliases match {
       case Nil => Right(fieldType)
-      case cTypeAlias :: Nil => typeSetAlias(cTypeAlias, fieldType, fieldName)
-      case _ => Left(DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE, fieldName))
+      case cTypeAlias :: Nil => typeSetAlias(cTypeAlias, fieldType)
+      case _ => Left(DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE))
     }
   }
 
@@ -87,13 +89,12 @@ object FieldDefinitionAnalyzer {
     * Creates an aliased type with the provided underlying type and alias name
     * @param cTypeAlias - C-type alias
     * @param underlyingType - Underlying type to alias
-    * @param fieldName - Name of field
     * @return An aliased type or an error if the underlying type cannot be aliased
     */
-  private def typeSetAlias(cTypeAlias: String, underlyingType: SimpleFieldType, fieldName: String): Either[FieldDefinitionError, SimpleFieldType] = {
+  private def typeSetAlias(cTypeAlias: String, underlyingType: SimpleFieldType): Either[FieldDefinitionError, SimpleFieldType] = {
     underlyingType match {
-      case AliasedType(_, _) => Left(TypeAliasNotAllowedError(underlyingType.toString, fieldName))
-      case ObjectType(_) => Left(TypeAliasNotAllowedError(underlyingType.toString, fieldName))
+      case AliasedType(_, _) => Left(TypeAliasNotAllowedError(underlyingType.toString))
+      case ObjectType(_) => Left(TypeAliasNotAllowedError(underlyingType.toString))
       case baseType:BaseFieldType => Right(AliasedType(cTypeAlias, baseType))
     }
   }
@@ -112,7 +113,7 @@ object FieldDefinitionAnalyzer {
     jsonKeyAttribute match {
       case Nil => Right(defaultJSONKeyGet(definition))
       case key :: Nil => Right(key)
-      case _ => Left(DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE, definition.name))
+      case _ => Left(DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE))
     }
   }
 

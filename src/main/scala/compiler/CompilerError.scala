@@ -14,11 +14,20 @@ case class ObjectTypesNotDefinedError(objectNames: Seq[String]) extends Semantic
 
 sealed trait MessageDefinitionError extends SemanticError
 case class DuplicateFieldsError(fields: Seq[String], messageName: String) extends MessageDefinitionError
-case class InvalidFieldsError(errors: Seq[FieldDefinitionError], messageName: String) extends MessageDefinitionError
+case class InvalidFieldsError(errors: Seq[InvalidFieldError], messageName: String) extends MessageDefinitionError
 
+/**
+  * Decorates a field definition error with the name of the field to provide more
+  * context about the error in error messages
+  */
+case class InvalidFieldError(fieldName: String, error: FieldDefinitionError) extends SemanticError
+
+/**
+  * Possible semantic errors in a field definition
+  */
 sealed trait FieldDefinitionError extends SemanticError
-case class DuplicateAttributeError(attribute: String, field: String) extends FieldDefinitionError
-case class TypeAliasNotAllowedError(underlyingType: String, field: String) extends FieldDefinitionError
+case class DuplicateAttributeError(attribute: String) extends FieldDefinitionError
+case class TypeAliasNotAllowedError(underlyingType: String) extends FieldDefinitionError
 
 case class Location(line: Int, column: Int) {
   override def toString = s"$line:$column"

@@ -62,7 +62,7 @@ class ProtocolDefinitionAnalyzerSpec extends UnitSpec{
     ))
   ))
   val invalidMessagesError = InvalidMessagesError(List(
-    InvalidFieldsError(List(DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE, "creator")), "issue"),
+    InvalidFieldsError(List(InvalidFieldError("creator", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE))),"issue"),
     DuplicateFieldsError(List("name"), "user")
   ))
 
