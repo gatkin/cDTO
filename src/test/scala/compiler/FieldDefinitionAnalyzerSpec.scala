@@ -11,7 +11,7 @@ class FieldDefinitionAnalyzerSpec extends UnitSpec{
   val aliasedTypeField = Field("user_id", AliasedType("uint32_t", NumberType), "userId")
 
   val aliasedArrayFieldDef = FieldDefinition("user_ids", ArrayTypeDefinition(NumberTypeDefinition()), List(CTypeAttribute("uint32_t"), JSONKeyAttribute("userIds")))
-  val aliasedArrayField = Field("user_ids", AliasedType("uint32_t", ArrayType(NumberType)), "userIds")
+  val aliasedArrayField = Field("user_ids", ArrayType(AliasedType("uint32_t", NumberType)), "userIds")
 
   val noJsonKeyFieldDef = FieldDefinition("user", ObjectTypeDefinition("user"), List())
   val noJsonKeyField = Field("user", ObjectType("user"), "user")
@@ -26,7 +26,7 @@ class FieldDefinitionAnalyzerSpec extends UnitSpec{
   val badAliasError = TypeAliasNotAllowedError(ObjectType("user").toString, "user")
 
   val badArrayAliasDef = FieldDefinition("users", ArrayTypeDefinition(ObjectTypeDefinition("user")), List(CTypeAttribute("user_t"), JSONKeyAttribute("users")))
-  val badArrayAliasError = TypeAliasNotAllowedError(ArrayType(ObjectType("user")).toString, "users")
+  val badArrayAliasError = TypeAliasNotAllowedError(ObjectType("user").toString, "users")
 
 
   "Message field definition analyzer" should "accept a valid field definition" in {

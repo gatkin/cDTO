@@ -27,59 +27,74 @@ object FieldDefinitionAnalyzer {
     * @return Type of field or an error if the field definition is invalid
     */
   private def fieldTypeGet(definition: FieldDefinition): Either[FieldDefinitionError, FieldType] = {
-    val baseType = baseTypeGet(definition.fieldType)
-
-    val cTypeAttribute = definition.attributes.collect({ case CTypeAttribute(cType) => cType })
-
-    // The C-type attribute is optional. If it is not present, then the field does not have
-    // a type alias. Otherwise, only some types are allowed to have an alias.
-    cTypeAttribute match {
-      // No alias, just use the base type
-      case Nil => Right(baseType)
-
-      // A valid alias was provided
-      case cType :: Nil if baseTypeCanHaveAlias(baseType) => Right(AliasedType(cType, baseType))
-
-      case _ :: Nil => Left(TypeAliasNotAllowedError(baseType.toString, definition.name))
-
-      case _ => Left(DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE, definition.name))
+    definition.fieldType match {
+      case ArrayTypeDefinition(elementTypeDef) => arrayFieldTypeGet(definition.name, definition.attributes, elementTypeDef)
+      case simpleTypeDef:SimpleTypeDefinition => simpleFieldTypeGet(definition.name, definition.attributes, simpleTypeDef)
     }
   }
 
   /**
-    * Returns the base type based on the provided type definition. The base type does not take into
-    * account the possibility that the type might be aliased if a C-type attribute was provided in
-    * the field definition
-    * @param typeDefinition - Type definition
-    * @return Base type that corresponds to the type definition
+    * Gets the field type for array field.
+    * @param fieldName - Name of field
+    * @param attributes - Field attributes provided in the field definition
+    * @param elementTypeDef - Definition of the array's element type
+    * @return An array type with the defined element type or an error if the definition is invalid.
     */
-  private def baseTypeGet(typeDefinition: FieldTypeDefinition): BaseFieldType = {
-    typeDefinition match {
-      case ArrayTypeDefinition(elementTypeDef) => ArrayType(baseTypeGet(elementTypeDef))
+  private def arrayFieldTypeGet(fieldName: String, attributes: Seq[FieldAttribute], elementTypeDef: SimpleTypeDefinition): Either[FieldDefinitionError, ArrayType] = {
+    simpleFieldTypeGet(fieldName, attributes, elementTypeDef)
+      .right.map(elementType => ArrayType(elementType))
+  }
+
+  /**
+    * Gets the field type for a simple non-array field
+    * @param fieldName - Name of field
+    * @param attributes - Field attributes provided in the field definition
+    * @param typeDefinition - Definition of the field's type
+    * @return Type of the field corresponding to the definition or an error if the definition is invalid
+    */
+  private def simpleFieldTypeGet(fieldName: String, attributes: Seq[FieldAttribute], typeDefinition: SimpleTypeDefinition): Either[FieldDefinitionError, SimpleFieldType] = {
+    val simpleFieldType = typeDefinition match {
       case BooleanTypeDefinition() => BooleanType
       case DynamicStringTypeDefinition() => DynamicStringType
       case FixedStringTypeDefinition(maxLength) => FixedStringType(maxLength)
       case NumberTypeDefinition() => NumberType
       case ObjectTypeDefinition(objectName) => ObjectType(objectName)
     }
+
+    typeCheckAlias(fieldName, attributes, simpleFieldType)
   }
 
   /**
-    * Returns true if the provided base type can have a C-type alias. Only some base types can be aliased.
-    * User-defined object types cannot be aliased because the object type should correspond to one of the
-    * message definitions from the protocol definition. The name of the user-defined object type should already
-    * be a type alias. Arrays can be type-aliased only if their element type can be aliased.
-    * @param baseType - Base type
-    * @return true if the given base type can have an alias
+    * Checks whether the field type should be aliased based on whether an
+    * C-type field attributes were provided.
+    * @param fieldName - Name of field
+    * @param attributes - Field attributes provided in the field definition
+    * @param fieldType - Type of the field
+    * @return An aliased type if an alias was provided, the unmodified field type if no alias was
+    *         specified, or an error if the definition is invalid
     */
-  private def baseTypeCanHaveAlias(baseType: BaseFieldType): Boolean = {
-    baseType match {
-      case ArrayType(elementType) => baseTypeCanHaveAlias(elementType)
-      case BooleanType => true
-      case DynamicStringType => true
-      case FixedStringType(_) => true
-      case NumberType => true
-      case ObjectType(_) => false
+  private def typeCheckAlias(fieldName: String, attributes: Seq[FieldAttribute], fieldType: SimpleFieldType): Either[FieldDefinitionError, SimpleFieldType] = {
+    val cTypeAliases = attributes.collect({ case CTypeAttribute(cType) => cType })
+    
+    cTypeAliases match {
+      case Nil => Right(fieldType)
+      case cTypeAlias :: Nil => typeSetAlias(cTypeAlias, fieldType, fieldName)
+      case _ => Left(DuplicateAttributeError(Constants.C_TYPE_ATTRIBUTE, fieldName))
+    }
+  }
+
+  /**
+    * Creates an aliased type with the provided underlying type and alias name
+    * @param cTypeAlias - C-type alias
+    * @param underlyingType - Underlying type to alias
+    * @param fieldName - Name of field
+    * @return An aliased type or an error if the underlying type cannot be aliased
+    */
+  private def typeSetAlias(cTypeAlias: String, underlyingType: SimpleFieldType, fieldName: String): Either[FieldDefinitionError, SimpleFieldType] = {
+    underlyingType match {
+      case AliasedType(_, _) => Left(TypeAliasNotAllowedError(underlyingType.toString, fieldName))
+      case ObjectType(_) => Left(TypeAliasNotAllowedError(underlyingType.toString, fieldName))
+      case baseType:BaseFieldType => Right(AliasedType(cTypeAlias, baseType))
     }
   }
 
