@@ -38,7 +38,7 @@ object ProtocolDefinitionAnalyzer {
 
     errors match {
       case Nil => Right(validMessages)
-      case _ => Left(InvalidMessagesError(errors))
+      case _ => Left(MessageErrors(errors))
     }
   }
 

@@ -14,11 +14,16 @@ object MessageDefinitionAnalyzer {
     * @return Either an error if the message definition is invalid, or the message
     *         corresponding to the definition.
     */
-  def apply(definition: MessageDefinition): Either[MessageDefinitionError, Message] = {
-    for {
+  def apply(definition: MessageDefinition): Either[InvalidMessageError, Message] = {
+    val message = for {
       fields <- fieldsGetAll(definition).right
-      fields <- fieldsCheckDuplicates(fields, definition.name).right
+      fields <- fieldsCheckDuplicates(fields).right
     } yield Message(definition.name, fields)
+
+    message.fold(
+      error => Left(InvalidMessageError(definition.name, error)),
+      validMessage => Right(validMessage)
+    )
   }
 
   /**
@@ -35,25 +40,24 @@ object MessageDefinitionAnalyzer {
 
     errors match {
       case Nil => Right(validFields)
-      case _ => Left(InvalidFieldsError(errors, definition.name))
+      case _ => Left(FieldErrors(errors))
     }
   }
 
   /**
     * Check for duplicate fields
     * @param fields - List of fields contained within a message
-    * @param messageName - Name of the message
     * @return If there are no duplicate fields, the provided fields sequence is returned unmodified. Otherwise,
     *         an error is returned if there are any duplicate fields.
     */
-  def fieldsCheckDuplicates(fields: Seq[Field], messageName: String): Either[MessageDefinitionError, Seq[Field]] = {
+  def fieldsCheckDuplicates(fields: Seq[Field]): Either[MessageDefinitionError, Seq[Field]] = {
     val fieldsByName = fields.groupBy(_.name)
 
     val duplicateFields = fieldsByName.keys.filter(fieldName => fieldsByName(fieldName).size > 1).toSeq
 
     duplicateFields match {
       case Nil => Right(fields)
-      case _ => Left(DuplicateFieldsError(duplicateFields, messageName))
+      case _ => Left(DuplicateFieldsError(duplicateFields))
     }
   }
 }

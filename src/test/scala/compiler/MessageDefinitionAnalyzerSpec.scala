@@ -3,7 +3,7 @@ package compiler
 import datamodel._
 import dto.UnitSpec
 
-class MessageDefinitionAnalyzerSpec extends UnitSpec{
+class MessageDefinitionAnalyzerSpec extends UnitSpec {
 
   val validMessageDef = MessageDefinition("issue", List(
     FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
@@ -21,7 +21,7 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec{
     FieldDefinition("number", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user")))
   ))
-  val duplicateFieldsError = DuplicateFieldsError(List("number"), "issue")
+  val duplicateFieldsError = InvalidMessageError("issue", DuplicateFieldsError(List("number")))
 
   val multipleDuplicateFieldsDef = MessageDefinition("issue", List(
     FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
@@ -29,17 +29,17 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec{
     FieldDefinition("number", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user")))
   ))
-  val multipleDuplicateFieldsError = DuplicateFieldsError(List("number", "creator"), "issue")
+  val multipleDuplicateFieldsError = InvalidMessageError("issue", DuplicateFieldsError(List("number", "creator")))
 
   val fieldErrorsDef = MessageDefinition("issue", List(
     FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"), JSONKeyAttribute("issueId"))),
     FieldDefinition("url", DynamicStringTypeDefinition(), List()),
     FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"), CTypeAttribute("user_type")))
   ))
-  val fieldErrorsError = InvalidFieldsError(List(
+  val fieldErrorsError = InvalidMessageError("issue", FieldErrors(List(
     InvalidFieldError("number", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE)),
     InvalidFieldError("creator", TypeAliasNotAllowedError(ObjectType("user").toString))
-  ), "issue")
+  )))
 
 
   "Message definition analyzer" should "accept a valid message definition" in {

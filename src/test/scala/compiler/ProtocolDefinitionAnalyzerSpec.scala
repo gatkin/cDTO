@@ -61,9 +61,9 @@ class ProtocolDefinitionAnalyzerSpec extends UnitSpec{
       FieldDefinition("name", DynamicStringTypeDefinition(), List(JSONKeyAttribute("userName")))
     ))
   ))
-  val invalidMessagesError = InvalidMessagesError(List(
-    InvalidFieldsError(List(InvalidFieldError("creator", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE))),"issue"),
-    DuplicateFieldsError(List("name"), "user")
+  val invalidMessagesError = MessageErrors(List(
+    InvalidMessageError("issue", FieldErrors(List(InvalidFieldError("creator", DuplicateAttributeError(Constants.JSON_KEY_ATTRIBUTE))))),
+    InvalidMessageError("user", DuplicateFieldsError(List("name")))
   ))
 
   "Protocol definition analyzer" should "accept a valid AST" in {
