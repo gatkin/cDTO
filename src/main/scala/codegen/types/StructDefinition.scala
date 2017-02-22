@@ -1,22 +1,9 @@
 package codegen.types
 
+import codegen.Constants
 import datamodel._
 
 object StructDefinition {
-
-  /*
-  * Default C types used for simple cDTO types. In the future, this
-  * can be made configurable.
-  */
-  private val defaultBooleanCType = "int"
-  private val defaultNumberCType = "double"
-  private val defaultCharacterCType = "char"
-
-  /*
-    * Using spaces instead of tabs for indentation, can make this configurable
-    * in the future.
-    */
-  private val indentation = "    "
 
   /**
     * Generates a C-struct definition string based on the provided message.
@@ -40,7 +27,7 @@ object StructDefinition {
     val fieldDeclarations = for {
       field <- fields
       fieldDeclaration <- structFieldDeclarationsGet(field)
-    } yield s"$indentation$fieldDeclaration"
+    } yield s"${Constants.indentation}$fieldDeclaration"
 
     fieldDeclarations.mkString("\n")
   }
@@ -76,10 +63,10 @@ object StructDefinition {
     val typeDeclaration = elementType match {
       case AliasedType(alias, _) => s"$alias*"
       case ObjectType(objectName) => s"$objectName*"
-      case BooleanType => s"$defaultBooleanCType*"
-      case DynamicStringType => s"$defaultCharacterCType**"
-      case FixedStringType(_) => s"$defaultCharacterCType**"
-      case NumberType => s"$defaultNumberCType*"
+      case BooleanType => s"${Constants.defaultBooleanCType}*"
+      case DynamicStringType => s"${Constants.defaultCharacterCType}**"
+      case FixedStringType(_) => s"${Constants.defaultCharacterCType}**"
+      case NumberType => s"${Constants.defaultNumberCType}*"
     }
 
     // Also need a declaration for the array count struct field
@@ -109,14 +96,12 @@ object StructDefinition {
     val fieldDeclaration = fieldType match {
       case AliasedType(alias, _) => s"$alias $fieldName"
       case ObjectType(objectName) => s"$objectName $fieldName"
-      case BooleanType => s"$defaultBooleanCType $fieldName"
-      case DynamicStringType => s"$defaultCharacterCType* $fieldName"
-      case FixedStringType(maxLength) => s"$defaultCharacterCType $fieldName[$maxLength + 1]"
-      case NumberType => s"$defaultNumberCType $fieldName"
+      case BooleanType => s"${Constants.defaultBooleanCType} $fieldName"
+      case DynamicStringType => s"${Constants.defaultCharacterCType}* $fieldName"
+      case FixedStringType(maxLength) => s"${Constants.defaultCharacterCType} $fieldName[$maxLength + 1]"
+      case NumberType => s"${Constants.defaultNumberCType} $fieldName"
     }
 
     s"$fieldDeclaration;"
   }
 }
-
-
