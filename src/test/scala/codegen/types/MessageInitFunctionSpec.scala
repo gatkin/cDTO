@@ -4,7 +4,7 @@ import datamodel._
 import dto.UnitSpec
 import codegen.functions._
 
-class InitFunctionDefinitionSpec extends UnitSpec {
+class MessageInitFunctionSpec extends UnitSpec {
 
   "Init function definition" should "create an initialization function for a cDTO message" in {
 
@@ -23,7 +23,7 @@ class InitFunctionDefinitionSpec extends UnitSpec {
       body = "memset( obj, 0, sizeof( *obj ) );"
     )
 
-    InitFunctionDefinition(message) shouldBe expectedDefinition
+    MessageInitFunction(message) shouldBe expectedDefinition
   }
 
 }

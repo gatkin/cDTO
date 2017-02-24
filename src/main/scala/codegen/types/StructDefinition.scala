@@ -14,7 +14,39 @@ object StructDefinition {
   def apply(message: Message): String = {
     s"""typedef struct {
        |${structBodyGet(message.fields)}
-       |} ${message.name};""".stripMargin
+       |} ${structName(message)};""".stripMargin
+  }
+
+  /**
+    * Gets the name of the C struct corresponding to the given message
+    * @param message cDTO message
+    * @return Name of struct corresponding to the message
+    */
+  def structName(message: Message): String = {
+    message.name
+  }
+
+  def arrayFieldType(elementType: SimpleFieldType): String = {
+    // Need to handle the special case of fixed strings being declared
+    // differently when they are array elements than when they are
+    // simple struct fields.
+    elementType match {
+      case AliasedType(alias, _) => s"$alias*"
+      case ObjectType(objectName) => s"$objectName*"
+      case BooleanType => s"${Constants.defaultBooleanCType}*"
+      case DynamicStringType => s"${Constants.defaultCharacterCType}**"
+      case FixedStringType(_) => s"${Constants.defaultCharacterCType}**"
+      case NumberType => s"${Constants.defaultNumberCType}*"
+    }
+  }
+
+  /**
+    * Returns the name of the count field to use for an array field
+    * @param arrayFieldName - Name of the array field
+    * @return Name of the count field corresponding to the give array field
+    */
+  def arrayCountFieldName(arrayFieldName: String): String = {
+    s"${arrayFieldName}_cnt"
   }
 
   /**
@@ -57,32 +89,13 @@ object StructDefinition {
     *         of a struct
     */
   private def arrayFieldDeclarationGet(fieldName: String, elementType: SimpleFieldType): Seq[String] = {
-    // Need to handle the special case of fixed strings being declared
-    // differently when they are array elements than when they are
-    // simple struct fields.
-    val typeDeclaration = elementType match {
-      case AliasedType(alias, _) => s"$alias*"
-      case ObjectType(objectName) => s"$objectName*"
-      case BooleanType => s"${Constants.defaultBooleanCType}*"
-      case DynamicStringType => s"${Constants.defaultCharacterCType}**"
-      case FixedStringType(_) => s"${Constants.defaultCharacterCType}**"
-      case NumberType => s"${Constants.defaultNumberCType}*"
-    }
+    val typeDeclaration = arrayFieldType(elementType)
 
     // Also need a declaration for the array count struct field
     List(
       s"$typeDeclaration $fieldName;",
       s"int ${arrayCountFieldName(fieldName)};"
     )
-  }
-
-  /**
-    * Returns the name of the count field to use for an array field
-    * @param arrayFieldName - Name of the array field
-    * @return Name of the count field corresponding to the give array field
-    */
-  private def arrayCountFieldName(arrayFieldName: String): String = {
-    s"${arrayFieldName}_cnt"
   }
 
   /**

@@ -4,7 +4,7 @@ import codegen.functions._
 import datamodel._
 
 
-object InitFunctionDefinition {
+object MessageInitFunction {
 
   private val parameterName = "obj"
 
@@ -17,7 +17,7 @@ object InitFunctionDefinition {
     */
   def apply(message: Message): FunctionDefinition = {
     FunctionDefinition(
-      name = name(message),
+      name = name(message.name),
       documentation = documentation(message),
       prototype = prototype(message),
       body = body(message)
@@ -25,12 +25,12 @@ object InitFunctionDefinition {
   }
 
   /**
-    * Gets the name of the message's initialization function
-    * @param message cDTO message
-    * @return Name of the initialization function
+    * Gets the name of the function used to initialize a message struct
+    * @param messageName Name of cDTO message
+    * @return Name of the message's initialization function
     */
-  private def name(message: Message): String = {
-    s"${message.name}_init"
+  def name(messageName: String): String = {
+    s"${messageName}_init"
   }
 
   /**
