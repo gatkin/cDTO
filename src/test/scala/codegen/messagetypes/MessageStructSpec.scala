@@ -3,9 +3,9 @@ package codegen.types
 import datamodel._
 import dto.UnitSpec
 
-class StructDefinitionSpec extends UnitSpec {
+class MessageStructSpec extends UnitSpec {
 
-  "Struct definition" should "generate a struct definition containing only simple, un-aliased types" in {
+  "Message struct" should "generate a struct definition containing only simple, un-aliased types" in {
     val simpleTypesMessage = Message("my_message_t", List(
       Field("boolean_field", BooleanType, "booleanField"),
       Field("number_field", NumberType, "numberField"),
@@ -23,7 +23,7 @@ class StructDefinitionSpec extends UnitSpec {
         |    issue issue_field;
         |} my_message_t;""".stripMargin
 
-    StructDefinition(simpleTypesMessage) shouldBe simpleTypesMessageStruct
+    MessageStruct(simpleTypesMessage) shouldBe simpleTypesMessageStruct
   }
 
   it should "generate a struct definition containing arrays of simple un-aliased types" in {
@@ -49,7 +49,7 @@ class StructDefinitionSpec extends UnitSpec {
         |    int issue_field_cnt;
         |} my_arrays_message_t;""".stripMargin
 
-    StructDefinition(simpleTypeArraysMessage) shouldBe simpleTypeArraysStruct
+    MessageStruct(simpleTypeArraysMessage) shouldBe simpleTypeArraysStruct
   }
 
   it should "generate a struct definition with aliased types" in {
@@ -68,7 +68,7 @@ class StructDefinitionSpec extends UnitSpec {
         |    id fixed_string_field;
         |} my_message_t;""".stripMargin
 
-    StructDefinition(aliasedTypesMessage) shouldBe aliasedTypesStruct
+    MessageStruct(aliasedTypesMessage) shouldBe aliasedTypesStruct
   }
 
   it should "generate a struct definition with aliased array element types" in {
@@ -91,6 +91,6 @@ class StructDefinitionSpec extends UnitSpec {
         |    int fixed_string_field_cnt;
         |} my_arrays_message_t;""".stripMargin
 
-    StructDefinition(aliasedArraysMessage) shouldBe aliasedArraysStruct
+    MessageStruct(aliasedArraysMessage) shouldBe aliasedArraysStruct
   }
 }

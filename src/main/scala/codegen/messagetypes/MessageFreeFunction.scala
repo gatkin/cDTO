@@ -1,4 +1,4 @@
-package codegen.types
+package codegen.messagetypes
 
 import codegen.Constants
 import codegen.functions._
@@ -65,7 +65,7 @@ object MessageFreeFunction {
       isStatic = false,
       returnType = Constants.voidCType,
       parameters = List(
-        FunctionParameter(paramType = s"${StructDefinition.structName(message)}*", paramName = paramName)
+        FunctionParameter(paramType = s"${MessageStruct.structName(message)}*", paramName = paramName)
       )
     )
   }
@@ -125,7 +125,7 @@ object MessageFreeFunction {
     */
   private def arrayFreeFunctionCall(messageName: String, arrayFieldName: String): String = {
     val functionName = ArrayFieldFreeFunction.name(messageName, arrayFieldName)
-    val countField = StructDefinition.arrayCountFieldName(arrayFieldName)
+    val countField = MessageStruct.arrayCountFieldName(arrayFieldName)
 
     s"$functionName( $paramName->$arrayFieldName, $paramName->$countField );"
   }

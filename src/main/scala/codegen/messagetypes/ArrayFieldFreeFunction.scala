@@ -1,4 +1,4 @@
-package codegen.types
+package codegen.messagetypes
 
 import codegen.Constants
 import codegen.functions._
@@ -62,7 +62,7 @@ object ArrayFieldFreeFunction {
       isStatic = true,
       returnType = Constants.voidCType,
       parameters = List(
-        FunctionParameter(paramType = StructDefinition.arrayFieldType(elementType), paramName = arrayParamName),
+        FunctionParameter(paramType = MessageStruct.arrayFieldType(elementType), paramName = arrayParamName),
         FunctionParameter(paramType = Constants.defaultIntCType, paramName = countParamName)
       )
     )

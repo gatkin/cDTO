@@ -3,7 +3,7 @@ package codegen.types
 import codegen.Constants
 import datamodel._
 
-object StructDefinition {
+object MessageStruct {
 
   /**
     * Generates a C-struct definition string based on the provided message.

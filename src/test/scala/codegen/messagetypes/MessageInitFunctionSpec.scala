@@ -1,4 +1,4 @@
-package codegen.types
+package codegen.messagetypes
 
 import datamodel._
 import dto.UnitSpec

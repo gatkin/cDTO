@@ -1,4 +1,4 @@
-package codegen.types
+package codegen.messagetypes
 
 import codegen.functions._
 import datamodel._
