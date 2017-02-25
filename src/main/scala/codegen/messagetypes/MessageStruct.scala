@@ -1,20 +1,21 @@
-package codegen.types
+package codegen.messagetypes
 
 import codegen.Constants
+import codegen.types._
 import datamodel._
 
 object MessageStruct {
 
   /**
-    * Generates a C-struct definition string based on the provided message.
+    * Generates a C-struct definition based on the provided message.
     * @param message cDTO message
-    * @return A string containing a definition for the C struct corresponding to
-    *         the provided message
+    * @return Definition of the struct corresponding to the cDTO message
     */
-  def apply(message: Message): String = {
-    s"""typedef struct {
-       |${structBodyGet(message.fields)}
-       |} ${structName(message)};""".stripMargin
+  def apply(message: Message): StructDefinition = {
+    StructDefinition(
+      name = message.name,
+      fields = message.fields.flatMap(structField)
+    )
   }
 
   /**
@@ -33,9 +34,6 @@ object MessageStruct {
     * @return String of the array's type declaration
     */
   def arrayFieldType(elementType: SimpleFieldType): String = {
-    // Need to handle the special case of fixed strings being declared
-    // differently when they are array elements than when they are
-    // simple struct fields.
     elementType match {
       case AliasedType(alias, _) => s"$alias*"
       case ObjectType(objectName) => s"$objectName*"
@@ -56,71 +54,51 @@ object MessageStruct {
   }
 
   /**
-    * Returns a string for the body of a struct definition consisting of
-    * declarations for all fields in the struct.
-    * @param fields List of message fields
-    * @return A string containing declarations for all struct fields
-    */
-  private def structBodyGet(fields: Seq[Field]): String = {
-    val fieldDeclarations = for {
-      field <- fields
-      fieldDeclaration <- structFieldDeclarationsGet(field)
-    } yield s"${Constants.indentation}$fieldDeclaration"
-
-    fieldDeclarations.mkString("\n")
-  }
-
-  /**
     * Gets a list of C-struct field definitions corresponding to the
     * provided cDTO message field. If the field is an array field, then
-    * this will return a field declaration string for the array itself
-    * as well as a field declaration string for the array's count.
+    * this will return a field definition for the array itself as well
+    * as a definition for a field to contain the array's count.
     * @param field cDTO field
-    * @return A list of strings to declare the cDTO field as a member of
+    * @return A list of fields to declare the cDTO field as a member of
     *         a C struct
     */
-  private def structFieldDeclarationsGet(field: Field): Seq[String] = {
+  private def structField(field: Field): Seq[StructField] = {
     field.fieldType match {
-      case ArrayType(elementType) => arrayFieldDeclarationGet(field.name, elementType)
-      case simpleType:SimpleFieldType => List(simpleFieldDeclarationGet(field.name, simpleType))
+      case ArrayType(elementType) => arrayField(field.name, elementType)
+      case simpleType:SimpleFieldType => List(simpleField(field.name, simpleType))
     }
   }
 
   /**
-    * Gets the C struct member definition strings corresponding to a
-    * cDTO array field with the given name and element type.
+    * Gets the C struct field definitions corresponding to a cDTO array
+    * field with the given name and element type.
     * @param fieldName Name of array field
     * @param elementType Type of elements contained within the array field
-    * @return A list of strings to declare the array and its count as members
-    *         of a struct
+    * @return Definitions for both the array field and the array count field
     */
-  private def arrayFieldDeclarationGet(fieldName: String, elementType: SimpleFieldType): Seq[String] = {
+  private def arrayField(fieldName: String, elementType: SimpleFieldType): Seq[StructField] = {
     val typeDeclaration = arrayFieldType(elementType)
 
-    // Also need a declaration for the array count struct field
     List(
-      s"$typeDeclaration $fieldName;",
-      s"int ${arrayCountFieldName(fieldName)};"
+      SimpleStructField(fieldName, typeDeclaration),
+      SimpleStructField(arrayCountFieldName(fieldName), Constants.defaultIntCType)
     )
   }
 
   /**
-    * Gets the declaration string to declare a simple-type field
-    * as a C struct member with the given name and type
+    * Gets the definition for a simple-type field with the given name and type
     * @param fieldName Name of field
     * @param fieldType Type of field
     * @return String to declare field as a member of a C struct
     */
-  private def simpleFieldDeclarationGet(fieldName: String, fieldType: SimpleFieldType): String = {
-    val fieldDeclaration = fieldType match {
-      case AliasedType(alias, _) => s"$alias $fieldName"
-      case ObjectType(objectName) => s"$objectName $fieldName"
-      case BooleanType => s"${Constants.defaultBooleanCType} $fieldName"
-      case DynamicStringType => s"${Constants.defaultCharacterCType}* $fieldName"
-      case FixedStringType(maxLength) => s"${Constants.defaultCharacterCType} $fieldName[$maxLength + 1]"
-      case NumberType => s"${Constants.defaultNumberCType} $fieldName"
+  private def simpleField(fieldName: String, fieldType: SimpleFieldType): StructField = {
+    fieldType match {
+      case AliasedType(alias, _) => SimpleStructField(fieldName, alias)
+      case ObjectType(objectName) => SimpleStructField(fieldName, objectName)
+      case BooleanType => SimpleStructField(fieldName, Constants.defaultBooleanCType)
+      case DynamicStringType => SimpleStructField(fieldName, Constants.defaultCharacterCType + "*")
+      case FixedStringType(maxLength) => FixedArrayStructField(fieldName, Constants.defaultCharacterCType, maxLength + 1) // include room for null-terminator
+      case NumberType => SimpleStructField(fieldName, Constants.defaultNumberCType)
     }
-
-    s"$fieldDeclaration;"
   }
 }
