@@ -9,10 +9,13 @@ object Constants {
   * can be made configurable.
   */
   val defaultBooleanCType = "int"
-  val defaultNumberCType = "double"
   val defaultCharacterCType = "char"
+  val defaultIntCType = "int"
+  val defaultNumberCType = "double"
 
   val voidCType = "void"
+
+  val defaultFreeFunction = "free"
 
   /*
     * Using spaces instead of tabs for indentation, can make this configurable

@@ -26,6 +26,12 @@ object StructDefinition {
     message.name
   }
 
+  /**
+    * Gets the type declaration string for an array field that contains
+    * the given type of elements.
+    * @param elementType Type of elements contained in the array
+    * @return String of the array's type declaration
+    */
   def arrayFieldType(elementType: SimpleFieldType): String = {
     // Need to handle the special case of fixed strings being declared
     // differently when they are array elements than when they are
@@ -42,7 +48,7 @@ object StructDefinition {
 
   /**
     * Returns the name of the count field to use for an array field
-    * @param arrayFieldName - Name of the array field
+    * @param arrayFieldName Name of the array field
     * @return Name of the count field corresponding to the give array field
     */
   def arrayCountFieldName(arrayFieldName: String): String = {
