@@ -44,7 +44,7 @@ object SourceFile {
     * @return String that will import all header files
     */
   def includeStatements(includes: Seq[String]): String = {
-    val allIncludes = includes.map(include => "#inlcude " + include).mkString("\n")
+    val allIncludes = includes.map(include => "#include " + include).mkString("\n")
 
     s"""/************************************************************************
        |                              INCLUDES
