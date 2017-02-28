@@ -4,6 +4,12 @@ import codegen.Constants
 import codegen.functions._
 import codegen.types._
 
+/**
+  * By convention, headers and C files will always be grouped together one-to-one
+  */
+case class SourceFilePair(headerFile: FileDefinition, cFile: FileDefinition)
+case class FileDefinition(name: String, contents: String)
+
 object SourceFile {
 
   /**

@@ -1,24 +1,12 @@
 package codegen.messagetypes
 
+import codegen.Constants
 import codegen.functions._
 import codegen.sourcefile._
 import codegen.types.StructDefinition
 import datamodel._
 
-/**
-  * Contains the contents the source files to define message types
-  * and the functions to manage them
-  * @param header Header file
-  * @param cFile C source file
-  */
-case class MessageFiles(header: MessageHeaderFile, cFile: MessageCFile)
-case class MessageHeaderFile(name: String, contents: String)
-case class MessageCFile(name: String, contents: String)
-
 object MessageTypeFiles {
-
-  private val stdlibHeader = "<stdlib.h>"
-  private val stringHeader = "<string.h>"
 
   /**
     * Creates the header file to define all structs and functions corresponding the given
@@ -32,7 +20,7 @@ object MessageTypeFiles {
     * @return Header and C source files containing type definitions and functions for
     *         working with the protocol message objects.
     */
-  def apply(protocol: Protocol, aliasedTypeHeaders: Seq[String]): MessageFiles = {
+  def apply(protocol: Protocol, aliasedTypeHeaders: Seq[String]): SourceFilePair = {
     // Get all of the structs to define
     val structs = protocol.messages.map(message => MessageStruct(message))
 
@@ -47,7 +35,7 @@ object MessageTypeFiles {
     val header = headerFile(protocol.name, aliasedTypeHeaders, structs, allFunctions)
     val sourceFile = cFile(protocol.name, allFunctions)
 
-    MessageFiles(header, sourceFile)
+    SourceFilePair(header, sourceFile)
   }
 
   /**
@@ -90,7 +78,7 @@ object MessageTypeFiles {
     * @param functions List of protocol message functions to declare
     * @return Message protocol header file
     */
-  private def headerFile(protocolName: String, aliasedTypeHeaders: Seq[String], structs: Seq[StructDefinition], functions: Seq[FunctionDefinition]): MessageHeaderFile = {
+  private def headerFile(protocolName: String, aliasedTypeHeaders: Seq[String], structs: Seq[StructDefinition], functions: Seq[FunctionDefinition]): FileDefinition = {
     val headerContents = HeaderFile(
       name = headerFileName(protocolName),
       description =  s"Contains definitions for $protocolName types.",
@@ -99,7 +87,7 @@ object MessageTypeFiles {
       functions = functions
     )
 
-    MessageHeaderFile(name = headerFileName(protocolName), contents = headerContents)
+    FileDefinition(name = headerFileName(protocolName), contents = headerContents)
   }
 
   /**
@@ -108,15 +96,15 @@ object MessageTypeFiles {
     * @param functions List of protocol functions to define in the C source file
     * @return Message protocol C source file
     */
-  private def cFile(protocolName: String, functions: Seq[FunctionDefinition]): MessageCFile = {
+  private def cFile(protocolName: String, functions: Seq[FunctionDefinition]): FileDefinition = {
     // Need <stdlib.h> for free() and <string.h> for memset()
     val cFileContents = CFile(
       name = cFileName(protocolName),
       description =  s"Contains functions for working with $protocolName types.",
-      includes = List(stdlibHeader, stringHeader, headerFileInclude(protocolName)),
+      includes = List(Constants.stdlibHeader, Constants.stringHeader, headerFileInclude(protocolName)),
       functions = functions
     )
 
-    MessageCFile(name = cFileName(protocolName), contents = cFileContents)
+    FileDefinition(name = cFileName(protocolName), contents = cFileContents)
   }
 }

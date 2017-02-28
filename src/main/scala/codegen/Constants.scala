@@ -22,4 +22,7 @@ object Constants {
     * in the future.
     */
   val indentation = "    "
+
+  val stdlibHeader = "<stdlib.h>"
+  val stringHeader = "<string.h>"
 }

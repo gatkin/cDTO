@@ -269,7 +269,7 @@ object MessageJSONParser {
     val parseFunction = ArrayJSONParser.name(messageName, arrayFieldName)
     val countFieldName = MessageStruct.arrayCountFieldName(arrayFieldName)
 
-    s"$parseFunction( $jsonObjectItemVar, &$messageOutputParam->$arrayFieldName, &$messageOutputParam->$countFieldName );"
+    s"$parseFunction( $jsonObjectItemVar, &$messageOutputParam->$arrayFieldName, &$messageOutputParam->$countFieldName )"
   }
 
   /**
@@ -280,7 +280,7 @@ object MessageJSONParser {
     * @return Function call to parse the field
     */
   private def defaultFieldParseCall(fieldName: String, parseFunctionName: String): String = {
-    s"$parseFunctionName( $jsonObjectItemVar, &$messageOutputParam->$fieldName );"
+    s"$parseFunctionName( $jsonObjectItemVar, &$messageOutputParam->$fieldName )"
   }
 
   /**
@@ -290,7 +290,7 @@ object MessageJSONParser {
     */
   private def fixedStringFieldParseCall(fieldName: String): String = {
     val parseFunction = FixedStringJSONParser.name
-    s"$parseFunction( $jsonObjectItemVar, $messageOutputParam->$fieldName, sizeof( $messageOutputParam->$fieldName ) );"
+    s"$parseFunction( $jsonObjectItemVar, $messageOutputParam->$fieldName, sizeof( $messageOutputParam->$fieldName ) )"
   }
 
   /**
