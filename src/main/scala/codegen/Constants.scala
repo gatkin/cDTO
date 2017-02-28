@@ -25,4 +25,5 @@ object Constants {
 
   val stdlibHeader = "<stdlib.h>"
   val stringHeader = "<string.h>"
+  val cJSONHeader = """"cJSON.h""""
 }
