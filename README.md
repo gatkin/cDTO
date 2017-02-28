@@ -32,7 +32,7 @@ Suppose we wanted to build a REST client to retrieve information about GitHub is
 To use cDTO to consume these JSON messages in our REST client, we would first define our messages in a message definition file, "github_issues.cdto"
 ```
 issue {
-    number Number;
+    number Number cType=uint32_t;
     url String;
     title String;
     creator user jsonKey=user;
@@ -54,28 +54,28 @@ Next, this message definition file would be fed into cDTO to generate the corres
 ```C
 // Header github_issues.cdto.h
 typedef struct
-  {
-  char * name;
-  char color[6 + 1];
-  } label;
+    {
+    char*    name;
+    char*    url;
+    } user;
 
 typedef struct
-  {
-  char * name;
-  char * url;
-  } user;
+    {
+    char*    name;
+    char     color[ 7 ];
+    } label;
 
 typedef struct
-  {
-  int number;
-  char * url;
-  char * title;
-  user creator;
-  user * assignees;
-  int assignees_cnt;
-  label * labels;
-  int labels_cnt;
-  } issue;
+    {
+    uint32_t    number;
+    char*       url;
+    char*       title;
+    user        creator;
+    user*       assignees;
+    int         assignees_cnt;
+    label*      labels;
+    int         labels_cnt;
+    } issue;
 
 void label_free
   (
