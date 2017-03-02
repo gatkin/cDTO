@@ -3,6 +3,7 @@ package codegen.json
 import codegen.Constants
 import codegen.functions._
 import codegen.json.parsing._
+import codegen.json.serialization._
 import codegen.messagetypes._
 import codegen.sourcefile._
 import datamodel._
@@ -17,13 +18,11 @@ object MessageJSONFiles {
     *         in the protocol to and from JSON.
     */
   def apply(protocol: Protocol): SourceFilePair = {
-    val messageParseFunctions = protocol.messages.flatMap(MessageJSONParser(_))
-    val arrayFieldParseFunctions = protocol.messages.flatMap(MessageJSONParser.arrayFieldParseFunctions)
-    val allParseFunctions = messageParseFunctions ++ arrayFieldParseFunctions ++ baseTypeParseFunctions(protocol)
+    val functions = protocolJSONFunctions(protocol)
 
     SourceFilePair(
-      headerFile = headerFile(protocol.name, allParseFunctions),
-      cFile = cFile(protocol.name, allParseFunctions)
+      headerFile = headerFile(protocol.name, functions),
+      cFile = cFile(protocol.name, functions)
     )
   }
 
@@ -59,6 +58,29 @@ object MessageJSONFiles {
   }
 
   /**
+    * Gets the list of all functions necessary to transform protocol messages to and
+    * from JSON
+    * @param protocol Protocol
+    * @return List of all functions needed to transform protocol messages to and from
+    *         JSON
+    */
+  private def protocolJSONFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    protocolParseFunctions(protocol) ++ protocolSerializeFunctions(protocol)
+  }
+
+  /**
+    * Gets the list of all functions necessary to parse protocol
+    * @param protocol Protocol
+    * @return List of all functions to parse protocol messages from JSOn
+    */
+  private def protocolParseFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    val messageParseFunctions = protocol.messages.flatMap(MessageJSONParser(_))
+    val arrayFieldParseFunctions = protocol.messages.flatMap(MessageJSONParser.arrayFieldParseFunctions)
+
+    messageParseFunctions ++ arrayFieldParseFunctions ++ baseTypeParseFunctions(protocol)
+  }
+
+  /**
     * Gets the list of all base type parsing functions that are necessary for parsing
     * protocol messages. For instance if no messages contain fixed-length string fields,
     * then this will not include the definition for the function to parse fixed-length fields.
@@ -88,6 +110,56 @@ object MessageJSONFiles {
       case DynamicStringType => Some(DynamicStringJSONParser.parseFunction)
       case FixedStringType(_) => Some(FixedStringJSONParser.parseFunction)
       case NumberType => Some(NumberJSONParser.parseFunction)
+    }
+  }
+
+  /** Gets the list of all functions necessary to serialize protocol messages
+    * to JSON
+    * @param protocol Protocol
+    * @return List of all functions to serialize protocol messages to JSON
+    */
+  private def protocolSerializeFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    val messageSerializeFunctions = protocol.messages.flatMap(message => List(
+      MessageJSONObjectSerializer(message),
+      MessageJSONStringSerializer(message),
+      MessageJSONPrettyStringSerializer(message)
+    ))
+
+    val arraySerializeFunctions = messageArraySerializeFunctions(protocol) ++ booleanArraySerializeFunction(protocol)
+
+    messageSerializeFunctions ++ arraySerializeFunctions
+  }
+
+  /**
+    * If any messages contain fields of arrays of other messages, then this
+    * returns the functions necessary to serialize any arrays of messages
+    * used in the protocol
+    * @param protocol Message protocol
+    * @return List of functions necessary to serialize any arrays of messages
+    *         that are defined in the protocol
+    */
+  private def messageArraySerializeFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    val messageFieldTypes = protocol.messages.flatMap(_.fields.map(_.fieldType))
+    val objectArrayFields = messageFieldTypes.collect({ case ArrayType(ObjectType(objectName)) => objectName})
+
+    objectArrayFields.map(MessageArrayJSONSerializer(_))
+  }
+
+  /**
+    * If any messages have a field of an array of boolean values, then this gets
+    * the function to serialize an array of boolean values to JSON. If no messages
+    * contain such a field, then None is returned
+    * @param protocol Message protocol
+    * @return Definition of function to serialize an array of boolean values if any
+    *         messages contain such a field, None otherwise
+    */
+  private def booleanArraySerializeFunction(protocol: Protocol): Option[FunctionDefinition] = {
+    val messageFieldTypes = protocol.messages.flatMap(_.fields.map(_.fieldType))
+    val booleanArrayFields = messageFieldTypes.collect({ case ArrayType(BooleanType) => BooleanType })
+
+    booleanArrayFields match {
+      case Nil => None
+      case _ => Some(BooleanArrayJSONSerializer.definition)
     }
   }
 
@@ -124,7 +196,7 @@ object MessageJSONFiles {
 
     val contents = CFile(
       name = name,
-      description = "Declares functions for parsing and serializing messages to and from JSON",
+      description = "Contains functions for parsing and serializing messages to and from JSON",
       includes = includes,
       functions = parseFunctions
     )
