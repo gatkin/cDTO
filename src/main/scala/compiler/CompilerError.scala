@@ -24,6 +24,7 @@ case class InvalidMessageError(messageName: String, error: MessageDefinitionErro
   */
 sealed trait MessageDefinitionError extends SemanticError
 case class DuplicateFieldsError(fields: Seq[String]) extends MessageDefinitionError
+case class DuplicateJSONKeysError(jsonKeys: Seq[String]) extends MessageDefinitionError
 case class FieldErrors(errors: Seq[InvalidFieldError]) extends MessageDefinitionError
 
 /**

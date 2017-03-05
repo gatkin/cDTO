@@ -18,6 +18,7 @@ object MessageDefinitionAnalyzer {
     val message = for {
       fields <- fieldsGetAll(definition).right
       fields <- fieldsCheckDuplicates(fields).right
+      fields <- jsonKeysCheckDuplicates(fields).right
     } yield Message(definition.name, fields)
 
     message.fold(
@@ -58,6 +59,23 @@ object MessageDefinitionAnalyzer {
     duplicateFields match {
       case Nil => Right(fields)
       case _ => Left(DuplicateFieldsError(duplicateFields))
+    }
+  }
+
+  /**
+    * Check for duplicate JSON keys
+    * @param fields List of fields contained within a message
+    * @return If there are no duplicate JSON keys, the provided fields sequence is returned
+    *         unmodified. Otherwise, an error is returned with the set of duplicate fields.
+    */
+  def jsonKeysCheckDuplicates(fields: Seq[Field]): Either[MessageDefinitionError, Seq[Field]] = {
+    val fieldsByKeys = fields.groupBy(_.jsonKey)
+
+    val duplicateKeys = fieldsByKeys.keys.filter(jsonKey => fieldsByKeys(jsonKey).size > 1).toSeq
+
+    duplicateKeys match {
+      case Nil => Right(fields)
+      case _ => Left(DuplicateJSONKeysError(duplicateKeys))
     }
   }
 }

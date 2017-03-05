@@ -60,4 +60,30 @@ class MessageDefinitionAnalyzerSpec extends UnitSpec {
 
     MessageDefinitionAnalyzer(fieldErrorsDef) shouldBe Left(fieldErrorsError)
   }
+
+  it should "not accept a definition with duplicate JSON keys" in {
+    val message = MessageDefinition("issue", List(
+      FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
+      FieldDefinition("url", DynamicStringTypeDefinition(), List(JSONKeyAttribute("url"))),
+      FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"))),
+      FieldDefinition("link", DynamicStringTypeDefinition(), List(JSONKeyAttribute("url")))
+    ))
+
+    val error = InvalidMessageError("issue",DuplicateJSONKeysError(List("url")))
+
+    MessageDefinitionAnalyzer(message) shouldBe Left(error)
+  }
+
+  it should "not accept a definition with duplicate JSON keys when default keys are used" in {
+    val message = MessageDefinition("issue", List(
+      FieldDefinition("number", NumberTypeDefinition(), List(JSONKeyAttribute("issueNumber"), CTypeAttribute("uint32_t"))),
+      FieldDefinition("url", DynamicStringTypeDefinition(), List()),
+      FieldDefinition("creator", ObjectTypeDefinition("user"), List(JSONKeyAttribute("user"))),
+      FieldDefinition("link", DynamicStringTypeDefinition(), List(JSONKeyAttribute("url")))
+    ))
+
+    val error = InvalidMessageError("issue",DuplicateJSONKeysError(List("url")))
+
+    MessageDefinitionAnalyzer(message) shouldBe Left(error)
+  }
 }
