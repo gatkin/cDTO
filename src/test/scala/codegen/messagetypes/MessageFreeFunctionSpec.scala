@@ -91,9 +91,9 @@ class MessageFreeFunctionSpec extends UnitSpec {
           """int i;
             |
             |for( i = 0; i < array_cnt; i++ )
-            |{
+            |    {
             |    user_free( &array[i] );
-            |}
+            |    }
             |
             |free( array );""".stripMargin
       ),

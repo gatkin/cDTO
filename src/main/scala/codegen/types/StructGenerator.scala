@@ -1,10 +1,9 @@
 package codegen.types
 
-import codegen.Constants
 
 object StructGenerator {
 
-  private val tabWidth = Constants.indentation.length
+  private val tabWidth = 4
 
   /**
     * Generates a string to declare a C struct
@@ -13,9 +12,9 @@ object StructGenerator {
     */
   def apply(definition: StructDefinition): String = {
     s"""typedef struct
-       |${Constants.indentation}{
+       |    {
        |${fieldDeclarations(definition.fields)}
-       |${Constants.indentation}} ${definition.name};""".stripMargin
+       |    } ${definition.name};""".stripMargin
   }
 
   /**
@@ -30,7 +29,7 @@ object StructGenerator {
 
     val fieldDeclarations = fields.map(field => {
       val declaration = fieldDeclaration(field, fieldNameColumn)
-      s"${Constants.indentation}$declaration;"
+      s"    $declaration;"
     })
 
     fieldDeclarations.mkString("\n")

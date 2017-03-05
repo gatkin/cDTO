@@ -94,23 +94,23 @@ object ArrayJSONParser {
        |// all zeros so it is safe to free the array if an error occurs in the
        |// middle of parsing.
        |if( success )
-       |{
+       |    {
        |    array_cnt = cJSON_GetArraySize( $jsonParam );
        |    if( array_cnt > 0 )
-       |    {
+       |        {
        |       array = calloc( array_cnt, sizeof( *array ) );
        |       success = ( NULL != array );
        |
        |       // Reset the array count if we failed to allocate the array
        |       array_cnt = success ? array_cnt : 0;
+       |        }
        |    }
-       |}
        |
        |for( i = 0; success && ( i < array_cnt ); i++ )
-       |{
+       |    {
        |    array_item = cJSON_GetArrayItem( $jsonParam, i );
        |    success = $parseElement( array_item, &array[i] );
-       |}
+       |    }
        |
        |*$arrayOutputParam = array;
        |*$countOutputParam = array_cnt;

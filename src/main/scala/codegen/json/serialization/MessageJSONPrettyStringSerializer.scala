@@ -77,10 +77,10 @@ object MessageJSONPrettyStringSerializer {
        |success = $objectSerializer( $messageParam, &json_root );
        |
        |if( success )
-       |{
+       |    {
        |    *$jsonOutputParam = cJSON_Print( json_root );
        |    success = ( NULL != *$jsonOutputParam );
-       |}
+       |    }
        |
        |cJSON_Delete( json_root );
        |

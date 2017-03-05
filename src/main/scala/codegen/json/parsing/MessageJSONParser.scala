@@ -122,15 +122,15 @@ object MessageJSONParser {
        |$successVar = ( NULL != $jsonRootVar );
        |
        |if( $successVar )
-       |{
+       |    {
        |    $successVar = $parseJsonObject
-       |}
+       |    }
        |
        |// Reset the output on error
        |if( !$successVar )
-       |{
+       |    {
        |    ${freeMessageOutput(message.name, messageOutputParam)}
-       |}
+       |    }
        |
        |cJSON_Delete( $jsonRootVar );
        |
@@ -216,9 +216,9 @@ object MessageJSONParser {
        |
        |// Reset the output on error
        |if( !$successVar )
-       |{
+       |    {
        |    ${freeMessageOutput(message.name, messageOutputParam)}
-       |}
+       |    }
        |
        |return $successVar;
      """.stripMargin
@@ -234,10 +234,10 @@ object MessageJSONParser {
   private def parseFieldSnippet(messageName: String, field: Field): String = {
     val parseFunctionCall = fieldParseCall(messageName, field.name, field.fieldType)
     s"""if( $successVar )
-       |{
+       |    {
        |    $jsonObjectItemVar = cJSON_GetObjectItem( $jsonObjectParam, "${field.jsonKey}" );
        |    $successVar = ( NULL != json_item ) && ( $parseFunctionCall );
-       |}""".stripMargin
+       |    }""".stripMargin
   }
 
   /**

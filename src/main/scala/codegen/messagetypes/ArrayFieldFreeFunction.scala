@@ -142,9 +142,9 @@ object ArrayFieldFreeFunction {
     s"""${Constants.defaultIntCType} $indexVariableName;
       |
       |for( $indexVariableName = 0; $indexVariableName < $countParamName; $indexVariableName++ )
-      |{
-      |${Constants.indentation}$elementFreeCall
-      |}
+      |    {
+      |    $elementFreeCall
+      |    }
       |
       |${Constants.defaultFreeFunction}( $arrayParamName );""".stripMargin
   }

@@ -17,12 +17,6 @@ object Constants {
 
   val defaultFreeFunction = "free"
 
-  /*
-    * Using spaces instead of tabs for indentation, can make this configurable
-    * in the future.
-    */
-  val indentation = "    "
-
   val stdlibHeader = "<stdlib.h>"
   val stringHeader = "<string.h>"
   val cJSONHeader = """"cJSON.h""""

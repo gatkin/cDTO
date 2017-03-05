@@ -89,13 +89,13 @@ object MessageJSONObjectSerializer {
        |
        |// Set the output or clean up on error
        |if( $successVar )
-       |{
+       |    {
        |   *$jsonOutputParam = $jsonRootVar;
-       |}
+       |    }
        |else
-       |{
+       |    {
        |    cJSON_Delete( $jsonRootVar );
-       |}
+       |    }
        |
        |return $successVar;""".stripMargin
   }
@@ -148,9 +148,9 @@ object MessageJSONObjectSerializer {
     val countField = MessageStruct.arrayCountFieldName(fieldName)
 
     s"""if( $successVar )
-       |{
+       |    {
        |   $successVar = $serializeFunction( $messageParam->$fieldName, $messageParam->$countField, &$jsonItemVar );
-       |}
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -166,9 +166,9 @@ object MessageJSONObjectSerializer {
     val countField = MessageStruct.arrayCountFieldName(fieldName)
 
     s"""if( $successVar )
-       |{
+       |    {
        |    $successVar = $serializeFunction( $messageParam->$fieldName, $messageParam->$countField, &$jsonItemVar );
-       |}
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -183,10 +183,10 @@ object MessageJSONObjectSerializer {
     val countField = MessageStruct.arrayCountFieldName(fieldName)
 
     s"""if( $successVar )
-       |{
+       |    {
        |    $jsonItemVar = cJSON_CreateStringArray( $messageParam->$fieldName, $messageParam->$countField );
        |    $successVar = ( NULL != $jsonItemVar );
-       |}
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -201,10 +201,10 @@ object MessageJSONObjectSerializer {
     val countField = MessageStruct.arrayCountFieldName(fieldName)
 
     s"""if( $successVar )
-       |{
+       |    {
        |    $jsonItemVar = cJSON_CreateDoubleArray( $messageParam->$fieldName, $messageParam->$countField );
        |    $successVar = ( NULL != $jsonItemVar );
-       |}
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -220,9 +220,9 @@ object MessageJSONObjectSerializer {
     val serializeFunction = MessageJSONObjectSerializer.name(objectName)
 
     s"""if( $successVar )
-       |{
+       |    {
        |    $successVar = $serializeFunction( &$messageParam->$fieldName, &$jsonItemVar );
-       |}
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -243,10 +243,10 @@ object MessageJSONObjectSerializer {
     }
 
     s"""if( $successVar )
-       |{
-       |  $jsonItemVar = $serializeFunction( $messageParam->$fieldName );
-       |  $successVar = ( NULL != $jsonItemVar );
-       |}
+       |    {
+       |    $jsonItemVar = $serializeFunction( $messageParam->$fieldName );
+       |    $successVar = ( NULL != $jsonItemVar );
+       |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
   }
@@ -259,8 +259,8 @@ object MessageJSONObjectSerializer {
     */
   private def addToJSONRootSnippet(jsonKey: String): String = {
     s"""if( $successVar )
-       |{
+       |    {
        |    cJSON_AddItemToObject( $jsonRootVar, "$jsonKey", $jsonItemVar );
-       |}""".stripMargin
+       |    }""".stripMargin
   }
 }

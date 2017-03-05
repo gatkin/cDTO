@@ -20,10 +20,10 @@ object FixedStringJSONParser {
        |success = ( cJSON_String == $jsonParam->type );
        |
        |if( success )
-       |{
+       |    {
        |    chars_printed = snprintf( $outputParam, $maxLengthParam, "%s", $jsonParam->valuestring );
        |    success = ( chars_printed < $maxLengthParam );
-       |}
+       |    }
        |
        |return success;""".stripMargin
 

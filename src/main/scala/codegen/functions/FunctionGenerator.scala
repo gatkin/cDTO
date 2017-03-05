@@ -44,9 +44,9 @@ object FunctionGenerator {
     val staticModifier = if(definition.prototype.isStatic) "static " else ""
 
     s"""$staticModifier${definition.prototype.returnType} ${definition.name}
-       |${Constants.indentation}(
+       |    (
        |$parameters
-       |${Constants.indentation})""".stripMargin
+       |    )""".stripMargin
   }
 
   /**
@@ -58,7 +58,7 @@ object FunctionGenerator {
     */
   private def functionParameters(parameters: Seq[FunctionParameter]): String = {
     parameters match {
-      case Nil => s"${Constants.indentation}${Constants.voidCType}"
+      case Nil => s"    ${Constants.voidCType}"
       case _ => functionParameterList(parameters)
     }
   }
@@ -73,7 +73,7 @@ object FunctionGenerator {
 
     val parameterDeclarations = for {
       parameter <- parameters
-    } yield s"${Constants.indentation}${parameter.paramType} ${parameter.paramName}"
+    } yield s"    ${parameter.paramType} ${parameter.paramName}"
 
     parameterDeclarations.mkString(",\n")
   }
@@ -101,9 +101,9 @@ object FunctionGenerator {
   private def functionDocumentationHeader(definition: FunctionDefinition): String = {
     s"""/**************************************************
        |*
-       |*${Constants.indentation}${definition.name} - ${definition.documentation.shortSummary}
+       |*    ${definition.name} - ${definition.documentation.shortSummary}
        |*
-       |*${Constants.indentation}${definition.documentation.description}
+       |*    ${definition.documentation.description}
        |*
        |**************************************************/""".stripMargin
   }

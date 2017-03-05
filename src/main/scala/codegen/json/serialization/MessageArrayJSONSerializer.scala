@@ -78,24 +78,24 @@ object MessageArrayJSONSerializer {
        |success = ( NULL != json_array );
        |
        |for( i = 0; ( success ) && ( i < $countParam ); i++ )
-       |{
+       |    {
        |    success = $objectSerializer( &$arrayParam[i], &array_item );
        |
        |    if( success )
-       |    {
+       |        {
        |        cJSON_AddItemToArray( json_array, array_item );
-       |    }
-       |}
+       |        }
+       |     }
        |
        |// Set the output or clean up on error
        |if( success )
-       |{
+       |    {
        |    *$jsonOutputParam = json_array;
-       |}
+       |    }
        |else
-       |{
+       |    {
        |    cJSON_Delete( json_array );
-       |}
+       |    }
        |
        |return success;""".stripMargin
   }

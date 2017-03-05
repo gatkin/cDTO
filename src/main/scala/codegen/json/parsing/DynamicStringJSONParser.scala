@@ -20,10 +20,10 @@ object DynamicStringJSONParser {
        |success = ( cJSON_String == $jsonParam->type );
        |
        |if( success )
-       |{
+       |    {
        |    *$outputParam = strdup( $jsonParam->valuestring );
        |    success = ( NULL != *$outputParam );
-       |}
+       |    }
        |
        |return success;""".stripMargin
 

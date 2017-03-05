@@ -77,10 +77,10 @@ object MessageJSONStringSerializer {
        |success = $objectSerializer( $messageParam, &json_root );
        |
        |if( success )
-       |{
+       |    {
        |    *$jsonOutputParam = cJSON_PrintUnformatted( json_root );
        |    success = ( NULL != *$jsonOutputParam );
-       |}
+       |    }
        |
        |cJSON_Delete( json_root );
        |

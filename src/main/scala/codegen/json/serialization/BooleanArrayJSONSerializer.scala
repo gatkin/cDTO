@@ -43,35 +43,35 @@ object BooleanArrayJSONSerializer {
        |success = ( NULL != json_array );
        |
        |for( i = 0; ( success ) && ( i < $countParam ); i++ )
-       |{
+       |    {
        |    array_item = NULL;
        |
        |    if( $arrayParam[i] )
-       |    {
+       |        {
        |        array_item = cJSON_CreateTrue();
-       |    }
+       |        }
        |    else
-       |    {
+       |        {
        |        array_item = cJSON_CreateFalse();
-       |    }
+       |        }
        |
        |    success = ( NULL != array_item );
        |
        |    if( success )
-       |    {
+       |        {
        |        cJSON_AddItemToArray( json_array, array_item );
-       |    }
+       |        }
        |}
        |
        |// Set the output or clean up on error
        |if( success )
-       |{
+       |    {
        |    *$jsonOutputParam = json_array;
-       |}
+       |    }
        |else
-       |{
+       |    {
        |    cJSON_Delete( json_array );
-       |}
+       |    }
        |
        |return success;""".stripMargin
 

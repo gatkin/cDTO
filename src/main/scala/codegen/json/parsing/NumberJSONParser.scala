@@ -15,14 +15,14 @@ object NumberJSONParser {
     s"""${Constants.defaultBooleanCType} success;
        |
        |if( cJSON_Number == $jsonParamName->type )
-       |{
+       |    {
        |    *$outputParamName = $jsonParamName->valuedouble;
        |    success = 1;
-       |}
+       |    }
        |else
-       |{
+       |    {
        |    success = 0;
-       |}
+       |    }
        |
        |return success;""".stripMargin
 

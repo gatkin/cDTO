@@ -1,6 +1,5 @@
 package codegen.sourcefile
 
-import codegen.Constants
 import codegen.functions._
 import codegen.types._
 
@@ -72,7 +71,7 @@ object SourceFile {
        |
        |THIS FILE IS AUTO-GENERATED. DO NOT EDIT DIRECTLY. ALL CHANGES WILL BE LOST.
        |
-       |${Constants.indentation}$fileName - $description
+       |    $fileName - $description
        |
        |************************************************************************/
      """.stripMargin

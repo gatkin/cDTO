@@ -15,19 +15,19 @@ object BooleanJSONParser {
     s"""${Constants.defaultBooleanCType} success;
        |
        |if( cJSON_True == $jsonParam->type )
-       |{
+       |    {
        |    *$outputParam = 1;
        |    success = 1;
-       |}
+       |    }
        |else if( cJSON_False == $jsonParam->type )
-       |{
+       |    {
        |    *$outputParam = 0;
        |    success = 1;
-       |}
+       |    }
        |else
-       |{
+       |    {
        |    success = 0;
-       |}
+       |    }
        |
        |return success;""".stripMargin
 
