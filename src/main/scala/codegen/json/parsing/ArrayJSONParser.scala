@@ -134,7 +134,7 @@ object ArrayJSONParser {
   private def elementParseFunction(elementType: SimpleFieldType): String = {
     elementType match {
       case AliasedType(_, underlyingType) => elementParseFunction(underlyingType)
-      case ObjectType(objectName) => MessageJSONParser.objectParserName(objectName)
+      case ObjectType(objectName) => MessageJSONObjectParser.name(objectName)
       case BooleanType => BooleanJSONParser.name
       case DynamicStringType => DynamicStringJSONParser.name
       case FixedStringType(_) => DynamicStringJSONParser.name // In arrays, fixed-length strings are dynamically-allocated

@@ -74,7 +74,10 @@ object MessageJSONFiles {
     * @return List of all functions to parse protocol messages from JSOn
     */
   private def protocolParseFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
-    val messageParseFunctions = protocol.messages.flatMap(MessageJSONParser(_))
+    val messageParseFunctions = protocol.messages.flatMap(message => List(
+      MessageJSONStringParser(message),
+      MessageJSONObjectParser(message)
+    ))
     val baseTypeParseFunctions = protocolFieldTypes(protocol).flatMap(baseTypeParseFunction)
 
     messageParseFunctions ++ baseTypeParseFunctions ++ arrayParseFunctions(protocol)
