@@ -186,7 +186,13 @@ object MessageJSONFiles {
     */
   private def cFile(protocolName: String, parseFunctions: Seq[FunctionDefinition]): FileDefinition = {
     val name = cFileName(protocolName)
-    val includes = List(Constants.stdlibHeader, Constants.stringHeader, Constants.cJSONHeader, headerFileInclude(protocolName))
+    val includes = List(
+      Constants.stdioHeader,
+      Constants.stdlibHeader,
+      Constants.stringHeader,
+      Constants.cJSONHeader,
+      headerFileInclude(protocolName)
+    )
 
     val contents = CFile(
       name = name,

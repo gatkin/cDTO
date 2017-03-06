@@ -17,6 +17,7 @@ object Constants {
 
   val defaultFreeFunction = "free"
 
+  val stdioHeader = "<stdio.h>"
   val stdlibHeader = "<stdlib.h>"
   val stringHeader = "<string.h>"
   val cJSONHeader = """"cJSON.h""""
