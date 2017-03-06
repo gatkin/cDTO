@@ -74,7 +74,7 @@ object MessageJSONStringParser {
     val freeOutput = s"${MessageFreeFunction.name(message.name)}( $messageOutputParam );"
 
     // Delegate to the object parser to perform the actual parsing work
-    val parseJSONObject = s"${MessageJSONObjectParser.name(message.name)}( $jsonRootVar, &$messageOutputParam );"
+    val parseJSONObject = s"${MessageJSONObjectParser.name(message.name)}( $jsonRootVar, $messageOutputParam );"
 
     s"""${Constants.defaultBooleanCType} success;
        |cJSON* $jsonRootVar;
