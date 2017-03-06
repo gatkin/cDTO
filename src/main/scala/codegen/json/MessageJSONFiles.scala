@@ -75,24 +75,20 @@ object MessageJSONFiles {
     */
   private def protocolParseFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
     val messageParseFunctions = protocol.messages.flatMap(MessageJSONParser(_))
-    val arrayFieldParseFunctions = protocol.messages.flatMap(MessageJSONParser.arrayFieldParseFunctions)
+    val baseTypeParseFunctions = protocolFieldTypes(protocol).flatMap(baseTypeParseFunction)
 
-    messageParseFunctions ++ arrayFieldParseFunctions ++ baseTypeParseFunctions(protocol)
+    messageParseFunctions ++ baseTypeParseFunctions ++ arrayParseFunctions(protocol)
   }
 
   /**
-    * Gets the list of all base type parsing functions that are necessary for parsing
-    * protocol messages. For instance if no messages contain fixed-length string fields,
-    * then this will not include the definition for the function to parse fixed-length fields.
-    * If at least one message contains a numeric field, then this will include the definition
-    * for the function to parse numeric values from JSON
-    * @param protocol Protocol
-    * @return List of static functions to parse base types contained in the protocol
+    * Gets the list of functions to parse all array types used in the protocol
+    * @param protocol Message protocol
+    * @return List of functions to parse all array types used in the protocol
     */
-  private def baseTypeParseFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
-    val fieldTypes = protocol.messages.flatMap(message => message.fields.map(_.fieldType)).toSet
+  private def arrayParseFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    val arrayFields = protocolFieldTypes(protocol).collect({ case array @ ArrayType(_) => array })
 
-    fieldTypes.flatMap(baseTypeParseFunction).toSeq
+    arrayFields.map(array => ArrayJSONParser(array.elementType)).toSeq
   }
 
   /**
@@ -139,10 +135,9 @@ object MessageJSONFiles {
     *         that are defined in the protocol
     */
   private def messageArraySerializeFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
-    val messageFieldTypes = protocol.messages.flatMap(_.fields.map(_.fieldType))
-    val objectArrayFields = messageFieldTypes.collect({ case ArrayType(ObjectType(objectName)) => objectName})
+    val objectArrayFields = protocolFieldTypes(protocol).collect({ case ArrayType(ObjectType(objectName)) => objectName})
 
-    objectArrayFields.map(MessageArrayJSONSerializer(_))
+    objectArrayFields.map(MessageArrayJSONSerializer(_)).toSeq
   }
 
   /**
@@ -154,13 +149,9 @@ object MessageJSONFiles {
     *         messages contain such a field, None otherwise
     */
   private def booleanArraySerializeFunction(protocol: Protocol): Option[FunctionDefinition] = {
-    val messageFieldTypes = protocol.messages.flatMap(_.fields.map(_.fieldType))
-    val booleanArrayFields = messageFieldTypes.collect({ case ArrayType(BooleanType) => BooleanType })
+    val booleanArrayFields = protocolFieldTypes(protocol).collect({ case ArrayType(BooleanType) => BooleanType })
 
-    booleanArrayFields match {
-      case Nil => None
-      case _ => Some(BooleanArrayJSONSerializer.definition)
-    }
+    if(booleanArrayFields.isEmpty) None else Some(BooleanArrayJSONSerializer.definition)
   }
 
   /**
@@ -202,5 +193,19 @@ object MessageJSONFiles {
     )
 
     FileDefinition(name, contents)
+  }
+
+  /**
+    * Gets the set of all field types used in the protocol messages
+    * @param protocol Message protocol
+    * @return Set of field types used in the protocol messages
+    */
+  private def protocolFieldTypes(protocol: Protocol): Set[FieldType] = {
+    val fieldTypes = for {
+      message <- protocol.messages
+      field <- message.fields
+    } yield field.fieldType
+
+    fieldTypes.toSet
   }
 }

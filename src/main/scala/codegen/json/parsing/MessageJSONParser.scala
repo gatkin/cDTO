@@ -33,17 +33,6 @@ object MessageJSONParser {
   }
 
   /**
-    * Gets the list of functions needed to parse the provided message's
-    * array fields from JSON. These are static functions defined separately
-    * from the message's parsing function.
-    * @param message cDTO message
-    * @return List of functions to parse
-    */
-  def arrayFieldParseFunctions(message: Message): Seq[FunctionDefinition] = {
-    message.fields.flatMap(field => arrayFieldParseFunction(message.name, field))
-  }
-
-  /**
     * Gets the name of the public API function to parse a message object from a
     * JSON input string.
     * @param messageName Name of the message to parse
@@ -249,7 +238,7 @@ object MessageJSONParser {
     */
   private def fieldParseCall(messageName: String, fieldName: String, fieldType: FieldType): String = {
     fieldType match {
-      case ArrayType(_) =>  arrayFieldParseCall(messageName, fieldName)
+      case ArrayType(elementType) =>  arrayFieldParseCall(fieldName, elementType)
       case AliasedType(_, underlyingType) => fieldParseCall(messageName, fieldName, underlyingType)
       case ObjectType(objectName) => defaultFieldParseCall(fieldName, objectParserName(objectName))
       case BooleanType => defaultFieldParseCall(fieldName, BooleanJSONParser.name)
@@ -261,12 +250,12 @@ object MessageJSONParser {
 
   /**
     * Gets the function call to parse an array field of a message
-    * @param messageName Name of the message containing the array field
     * @param arrayFieldName Name of the array field within the message
+    * @param elementType Type of elements contained in the array
     * @return Function call to parse the array field from JSON
     */
-  private def arrayFieldParseCall(messageName: String, arrayFieldName: String): String = {
-    val parseFunction = ArrayJSONParser.name(messageName, arrayFieldName)
+  private def arrayFieldParseCall(arrayFieldName: String, elementType: SimpleFieldType): String = {
+    val parseFunction = ArrayJSONParser.name(elementType)
     val countFieldName = MessageStruct.arrayCountFieldName(arrayFieldName)
 
     s"$parseFunction( $jsonObjectItemVar, &$messageOutputParam->$arrayFieldName, &$messageOutputParam->$countFieldName )"
@@ -291,20 +280,5 @@ object MessageJSONParser {
   private def fixedStringFieldParseCall(fieldName: String): String = {
     val parseFunction = FixedStringJSONParser.name
     s"$parseFunction( $jsonObjectItemVar, $messageOutputParam->$fieldName, sizeof( $messageOutputParam->$fieldName ) )"
-  }
-
-  /**
-    * If the provided field is an array, this gets the definition of the function
-    * to parse the provided array field of a message
-    * @param messageName Name of the message containing the array field
-    * @param field Field to parse
-    * @return None if the field is not an array, the definition of the function to
-    *         parse the array field otherwise
-    */
-  private def arrayFieldParseFunction(messageName: String, field: Field): Option[FunctionDefinition] = {
-    field.fieldType match {
-      case array @ ArrayType(_) => Some(ArrayJSONParser(messageName, field.name, array))
-      case _ => None
-    }
   }
 }

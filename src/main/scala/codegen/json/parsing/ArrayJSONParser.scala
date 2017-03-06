@@ -1,5 +1,7 @@
 package codegen.json.parsing
 
+import java.lang.annotation.ElementType
+
 import codegen.Constants
 import codegen.functions._
 import codegen.messagetypes.MessageStruct
@@ -8,37 +10,41 @@ import datamodel._
 
 object ArrayJSONParser {
 
+  private val nameSuffix = "_array_json_parse"
   private val jsonParam = "json_array"
   private val arrayOutputParam = "array_out"
   private val countOutputParam = "array_cnt_out"
 
   /**
-    * Creates a function to parse a JSON array into a message field. The returned
-    * function is a static function that takes a cJSON pointer argument.
-    * @param messageName Name of the message containing the array
-    * @param fieldName Name of the array field
-    * @param array Array type information
+    * Creates a function to parse an array from a cJSON object
+    * @param elementType Type of element cotnained in the array
     * @return Definition of function to parse a JSON array into a message field
     */
-  def apply(messageName: String, fieldName: String, array: ArrayType): FunctionDefinition = {
+  def apply(elementType: SimpleFieldType): FunctionDefinition = {
     FunctionDefinition(
-      name = name(messageName, fieldName),
+      name = name(elementType),
       documentation = documentation,
-      prototype = prototype(array.elementType),
-      body = body(array.elementType)
+      prototype = prototype(elementType),
+      body = body(elementType)
     )
   }
 
   /**
-    * Gets the name of the function to parse an array field of a message. The name of this
-    * function should be unique among all JSON parsing functions used in a protocol.
-    * @param messageName Name of the message containing the array
-    * @param fieldName Name of the array field
+    * Gets the name of the function to parse an array of the specified type from a cJSON
+    * object
+    * @param elementType Type of element contained in the array
     * @return Name of the function to parse an array for the given message field
     *         from a cJSON object
     */
-  def name(messageName: String, fieldName: String): String = {
-    s"${messageName}_${fieldName}_json_parse"
+  def name(elementType: SimpleFieldType): String = {
+    elementType match {
+      case AliasedType(_, underlyingType) => name(underlyingType)
+      case ObjectType(objectName) => objectName + nameSuffix
+      case BooleanType => "boolean" + nameSuffix
+      case DynamicStringType => "string" + nameSuffix
+      case FixedStringType(_) => "string" + nameSuffix
+      case NumberType => "number" + nameSuffix
+    }
   }
 
   /**
@@ -98,11 +104,11 @@ object ArrayJSONParser {
        |    array_cnt = cJSON_GetArraySize( $jsonParam );
        |    if( array_cnt > 0 )
        |        {
-       |       array = calloc( array_cnt, sizeof( *array ) );
-       |       success = ( NULL != array );
+       |        array = calloc( array_cnt, sizeof( *array ) );
+       |        success = ( NULL != array );
        |
-       |       // Reset the array count if we failed to allocate the array
-       |       array_cnt = success ? array_cnt : 0;
+       |        // Reset the array count if we failed to allocate the array
+       |        array_cnt = success ? array_cnt : 0;
        |        }
        |    }
        |

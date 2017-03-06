@@ -90,7 +90,7 @@ object MessageJSONObjectSerializer {
        |// Set the output or clean up on error
        |if( $successVar )
        |    {
-       |   *$jsonOutputParam = $jsonRootVar;
+       |    *$jsonOutputParam = $jsonRootVar;
        |    }
        |else
        |    {
@@ -149,7 +149,7 @@ object MessageJSONObjectSerializer {
 
     s"""if( $successVar )
        |    {
-       |   $successVar = $serializeFunction( $messageParam->$fieldName, $messageParam->$countField, &$jsonItemVar );
+       |    $successVar = $serializeFunction( $messageParam->$fieldName, $messageParam->$countField, &$jsonItemVar );
        |    }
        |
        |${addToJSONRootSnippet(jsonKey)}""".stripMargin
