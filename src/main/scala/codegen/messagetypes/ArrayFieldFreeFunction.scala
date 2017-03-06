@@ -7,37 +7,41 @@ import datamodel._
 
 object ArrayFieldFreeFunction {
 
+  private val nameSuffix = "_array_free"
   private val arrayParamName = "array"
   private val countParamName = "array_cnt"
   private val indexVariableName = "i"
 
   /**
-    * Gets the definition for the function necessary to free an array that is a field
-    * of a message struct. The array free function will be a static function.
-    * @param messageName Name of message containing the array
-    * @param fieldName Name of the array field within the struct
-    * @param array Array field of the struct
+    * Gets the definition for the static function to free arrays containing the specified
+    * types of elements
+    * @param elementType Type of elements contained in the array
     * @return Function definition of the array's free function
     */
-  def apply(messageName: String, fieldName: String, array: ArrayType): FunctionDefinition = {
+  def apply(elementType: SimpleFieldType): FunctionDefinition = {
     FunctionDefinition(
-      name = name(messageName, fieldName),
+      name = name(elementType),
       documentation = documentation,
-      prototype = prototype(array.elementType),
-      body = body(array.elementType)
+      prototype = prototype(elementType),
+      body = body(elementType)
     )
   }
 
   /**
-    * Gets the name of the function used to free an array that is a field within
-    * a message struct. The function is named so that it does not conflict with
-    * any other functions,
-    * @param messageName Name of the message which contains the array
-    * @param fieldName Name of the array field within the struct
+    * Gets the name of the function to free arrays containing the specified type of
+    * elements
+    * @param elementType Type of elements contained in the array
     * @return Name of the array's free function
     */
-  def name(messageName: String, fieldName: String): String = {
-    s"${messageName}_${fieldName}_free"
+  def name(elementType: SimpleFieldType): String = {
+    elementType match {
+      case AliasedType(_, underlyingType) => name(underlyingType)
+      case ObjectType(objectName) => objectName + nameSuffix
+      case BooleanType => "boolean" + nameSuffix
+      case DynamicStringType => "string" + nameSuffix
+      case FixedStringType(_) => "string" + nameSuffix
+      case NumberType => "number" + nameSuffix
+    }
   }
 
   /**

@@ -7,12 +7,8 @@ import dto.UnitSpec
 class ArrayFieldFreeFunctionSpec extends UnitSpec {
 
   "Array field free function" should "generate a free function for arrays with dynamic elements" in {
-    val messageName = "issue"
-    val fieldName = "urls"
-    val arrayField = ArrayType(DynamicStringType)
-
     val arrayFreeFunction = FunctionDefinition(
-      name = "issue_urls_free",
+      name = "string_array_free",
       documentation = FunctionDocumentation(shortSummary = "Free array",
         description = "Cleans up all resources owned by the array and its elements."),
       prototype = FunctionPrototype(
@@ -34,16 +30,12 @@ class ArrayFieldFreeFunctionSpec extends UnitSpec {
           |free( array );""".stripMargin
     )
 
-    ArrayFieldFreeFunction(messageName, fieldName, arrayField) shouldBe arrayFreeFunction
+    ArrayFieldFreeFunction(DynamicStringType) shouldBe arrayFreeFunction
   }
 
   it should "generate a free function for arrays with non-dynamic elements" in {
-    val messageName = "issue"
-    val fieldName = "ids"
-    val arrayField = ArrayType(AliasedType("uint32_t", NumberType))
-
     val arrayFreeFunction = FunctionDefinition(
-      name = "issue_ids_free",
+      name = "number_array_free",
       documentation = FunctionDocumentation(shortSummary = "Free array",
         description = "Cleans up all resources owned by the array and its elements."),
       prototype = FunctionPrototype(
@@ -57,16 +49,12 @@ class ArrayFieldFreeFunctionSpec extends UnitSpec {
       body = "free( array );"
     )
 
-    ArrayFieldFreeFunction(messageName, fieldName, arrayField) shouldBe arrayFreeFunction
+    ArrayFieldFreeFunction(AliasedType("uint32_t", NumberType)) shouldBe arrayFreeFunction
   }
 
   it should "generate a free function for arrays with object-type elements" in {
-    val messageName = "issue"
-    val fieldName = "assignees"
-    val arrayField = ArrayType(ObjectType("user"))
-
     val arrayFreeFunction = FunctionDefinition(
-      name = "issue_assignees_free",
+      name = "user_array_free",
       documentation = FunctionDocumentation(shortSummary = "Free array",
         description = "Cleans up all resources owned by the array and its elements."),
       prototype = FunctionPrototype(
@@ -88,19 +76,15 @@ class ArrayFieldFreeFunctionSpec extends UnitSpec {
           |free( array );""".stripMargin
     )
 
-    ArrayFieldFreeFunction(messageName, fieldName, arrayField) shouldBe arrayFreeFunction
+    ArrayFieldFreeFunction(ObjectType("user")) shouldBe arrayFreeFunction
   }
 
   it should "generate a free function for arrays of fixed-length strings" in {
     // Fixed-length strings will need to be dynamically allocated when they
     // are elements of an array so we need to call free on each element when
     // they are fixed-length strings.
-    val messageName = "issue"
-    val fieldName = "label_colors"
-    val arrayField = ArrayType(FixedStringType(6))
-
     val arrayFreeFunction = FunctionDefinition(
-      name = "issue_label_colors_free",
+      name = "string_array_free",
       documentation = FunctionDocumentation(shortSummary = "Free array",
         description = "Cleans up all resources owned by the array and its elements."),
       prototype = FunctionPrototype(
@@ -122,6 +106,6 @@ class ArrayFieldFreeFunctionSpec extends UnitSpec {
           |free( array );""".stripMargin
     )
 
-    ArrayFieldFreeFunction(messageName, fieldName, arrayField) shouldBe arrayFreeFunction
+    ArrayFieldFreeFunction(FixedStringType(6)) shouldBe arrayFreeFunction
   }
 }

@@ -32,7 +32,7 @@ class MessageFreeFunctionSpec extends UnitSpec {
         body =
           """free( obj->dynamic_string_field );
             |issue_free( &obj->issue_field );
-            |my_message_t_array_field_free( obj->array_field, obj->array_field_cnt );
+            |user_array_free( obj->array_field, obj->array_field_cnt );
             |
             |my_message_t_init( obj );""".stripMargin
       )
@@ -64,66 +64,5 @@ class MessageFreeFunctionSpec extends UnitSpec {
     )
 
     MessageFreeFunction(message) shouldBe freeFunction
-  }
-
-  it should "generate a list of array field free functions for messages with array fields" in {
-    val message = Message("issue", List(
-      Field("assignees", ArrayType(ObjectType("user")), "assignees"),
-      Field("ids", ArrayType(AliasedType("uint32_t", NumberType)), "ids")
-    ))
-
-    val arrayFreeFunctions = List(
-      FunctionDefinition(
-        name = "issue_assignees_free",
-        documentation = FunctionDocumentation(
-          shortSummary = "Free array",
-          description = "Cleans up all resources owned by the array and its elements."
-        ),
-        prototype = FunctionPrototype(
-          isStatic = true,
-          returnType = "void",
-          parameters = List(
-            FunctionParameter(paramType = "user*", paramName = "array"),
-            FunctionParameter(paramType = "int", paramName = "array_cnt")
-          )
-        ),
-        body =
-          """int i;
-            |
-            |for( i = 0; i < array_cnt; i++ )
-            |    {
-            |    user_free( &array[i] );
-            |    }
-            |
-            |free( array );""".stripMargin
-      ),
-      FunctionDefinition(
-        name = "issue_ids_free",
-        documentation = FunctionDocumentation(
-          shortSummary = "Free array",
-          description = "Cleans up all resources owned by the array and its elements."
-        ),
-        prototype = FunctionPrototype(
-          isStatic = true,
-          returnType = "void",
-          parameters = List(
-            FunctionParameter(paramType = "uint32_t*", paramName = "array"),
-            FunctionParameter(paramType = "int", paramName = "array_cnt")
-          )
-        ),
-        body ="free( array );"
-      )
-    )
-
-    MessageFreeFunction.arrayFieldFreeFunctions(message) shouldBe arrayFreeFunctions
-  }
-
-  it should "generate a list of empty array free functions for messages with no array fields" in {
-    val message = Message("issue", List(
-      Field("title", DynamicStringType, "title"),
-      Field("id", NumberType, "number")
-    ))
-
-    MessageFreeFunction.arrayFieldFreeFunctions(message) shouldBe Nil
   }
 }

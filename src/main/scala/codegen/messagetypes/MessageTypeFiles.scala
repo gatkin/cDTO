@@ -27,9 +27,8 @@ object MessageTypeFiles {
     // Get all of the functions to declare and define
     val initFunctions = protocol.messages.map(message => MessageInitFunction(message))
     val freeFunctions = protocol.messages.map(message => MessageFreeFunction(message))
-    val fieldArrayFreeFunctions = protocol.messages.flatMap(message => MessageFreeFunction.arrayFieldFreeFunctions(message))
 
-    val allFunctions = initFunctions ++ freeFunctions ++ fieldArrayFreeFunctions
+    val allFunctions = initFunctions ++ freeFunctions ++ arrayFreeFunctions(protocol)
 
     // Create the header and source files
     val header = headerFile(protocol.name, aliasedTypeHeaders, structs, allFunctions)
@@ -67,6 +66,23 @@ object MessageTypeFiles {
   def headerFileInclude(protocolName: String): String = {
     // Include with quotes around the file name
     s""""${headerFileName(protocolName)}""""
+  }
+
+  /**
+    * Gets the list of all array free functions necessary for all array types
+    * used in the protocol
+    * @param protocol Message protocol
+    * @return List of functions to free all array types used in the protocol
+    */
+  private def arrayFreeFunctions(protocol: Protocol): Seq[FunctionDefinition] = {
+    val fieldTypes = for {
+      message <- protocol.messages
+      field <- message.fields
+    } yield field.fieldType
+
+    val arrayFields = fieldTypes.collect({ case array @ ArrayType(_) => array }).toSet
+
+    arrayFields.map(array => ArrayFieldFreeFunction(array.elementType)).toSeq
   }
 
   /**

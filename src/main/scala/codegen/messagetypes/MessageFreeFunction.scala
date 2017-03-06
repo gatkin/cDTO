@@ -34,16 +34,6 @@ object MessageFreeFunction {
   }
 
   /**
-    * Gets a list of definitions for functions to free any array fields contained
-    * in the message.
-    * @param message cDTO message
-    * @return List of definitions for array field free functions
-    */
-  def arrayFieldFreeFunctions(message: Message): Seq[FunctionDefinition] = {
-    message.fields.flatMap(field => arrayFieldFreeFunctionDef(message.name, field))
-  }
-
-  /**
     * Gets the documentation for a message free function
     * @param message cDTO message
     * @return Message free function documentation
@@ -107,7 +97,7 @@ object MessageFreeFunction {
     */
   private def fieldFreeFunctionCall(messageName: String, fieldName: String, fieldType: FieldType): Option[String] = {
     fieldType match {
-      case ArrayType(_) => Some(arrayFreeFunctionCall(messageName, fieldName))
+      case ArrayType(elementType) => Some(arrayFreeFunctionCall(fieldName, elementType))
       case AliasedType(_, underlyingType) => fieldFreeFunctionCall(messageName, fieldName, underlyingType)
       case ObjectType(objectName) => Some(objectFreeFunctionName(objectName, fieldName))
       case BooleanType => None
@@ -119,12 +109,12 @@ object MessageFreeFunction {
 
   /**
     * Gets the string to free an array field
-    * @param messageName Name of message containing the array
     * @param arrayFieldName Name of the array field
+    * @param elementType Type of elements contained in the array
     * @return String to free the array field
     */
-  private def arrayFreeFunctionCall(messageName: String, arrayFieldName: String): String = {
-    val functionName = ArrayFieldFreeFunction.name(messageName, arrayFieldName)
+  private def arrayFreeFunctionCall(arrayFieldName: String, elementType: SimpleFieldType): String = {
+    val functionName = ArrayFieldFreeFunction.name(elementType)
     val countField = MessageStruct.arrayCountFieldName(arrayFieldName)
 
     s"$functionName( $paramName->$arrayFieldName, $paramName->$countField );"
@@ -151,19 +141,5 @@ object MessageFreeFunction {
     */
   private def dynamicStringFreeFunctionCall(stringFieldName: String): String = {
     s"${Constants.defaultFreeFunction}( $paramName->$stringFieldName );"
-  }
-
-  /**
-    * If the provided field is an array, this returns the definition for the
-    * function to free the array, None otherwise
-    * @param messageName Name of message containing the field
-    * @param field Field of th Message
-    * @return Either an array free function if the field is an array or None otherwise
-    */
-   private def arrayFieldFreeFunctionDef(messageName: String, field: Field): Option[FunctionDefinition] = {
-    field.fieldType match {
-      case array @ ArrayType(_) => Some(ArrayFieldFreeFunction(messageName, field.name, array))
-      case _ => None
-    }
   }
 }
