@@ -72,7 +72,7 @@ object MessageJSONObjectParser {
   private def body(message: Message): String = {
     val initializeOutput = s"${MessageInitFunction.name(message.name)}( $messageOutputParam );"
     val freeOutput = s"${MessageFreeFunction.name(message.name)}( $messageOutputParam );"
-    val parseFieldSnippets = message.fields.map(field => parseFieldSnippet(message.name, field)).mkString("\n\n")
+    val parseFieldSnippets = message.fields.map(parseFieldSnippet).mkString("\n\n")
 
     s"""${Constants.defaultBooleanCType} $successVar;
        |cJSON* $jsonObjectItemVar;
@@ -95,12 +95,11 @@ object MessageJSONObjectParser {
   /**
     * Gets the snippet of code necessary to parse the provided field of the specified
     * message.
-    * @param messageName Name of the message containing the field to parse
     * @param field Field to parse
     * @return Code snippet to parse the message field
     */
-  private def parseFieldSnippet(messageName: String, field: Field): String = {
-    val parseFunctionCall = fieldParseCall(messageName, field.name, field.fieldType)
+  private def parseFieldSnippet(field: Field): String = {
+    val parseFunctionCall = fieldParseCall(field.name, field.fieldType)
     s"""if( $successVar )
        |    {
        |    $jsonObjectItemVar = cJSON_GetObjectItem( $jsonObjectParam, "${field.jsonKey}" );
@@ -110,15 +109,14 @@ object MessageJSONObjectParser {
 
   /**
     * Gets the function call to parse the given field of the specified message
-    * @param messageName Name of the message containing the field
     * @param fieldName Name of the field to be parsed
     * @param fieldType Type of the field to be parsed
     * @return Function call to parse the field
     */
-  private def fieldParseCall(messageName: String, fieldName: String, fieldType: FieldType): String = {
+  private def fieldParseCall(fieldName: String, fieldType: FieldType): String = {
     fieldType match {
       case ArrayType(elementType) =>  arrayFieldParseCall(fieldName, elementType)
-      case AliasedType(_, underlyingType) => fieldParseCall(messageName, fieldName, underlyingType)
+      case AliasedType(_, underlyingType) => aliasedFieldParseCall(fieldName, underlyingType)
       case ObjectType(objectName) => defaultFieldParseCall(fieldName, MessageJSONObjectParser.name(objectName))
       case BooleanType => defaultFieldParseCall(fieldName, BooleanJSONParser.name)
       case DynamicStringType => defaultFieldParseCall(fieldName, DynamicStringJSONParser.name)
@@ -140,6 +138,46 @@ object MessageJSONObjectParser {
     s"$parseFunction( $jsonObjectItemVar, &$messageOutputParam->$arrayFieldName, &$messageOutputParam->$countFieldName )"
   }
 
+  /**
+    * Gets the function call to parse an aliased message field
+    * @param fieldName Name of aliased-type field
+    * @param underlyingType Underlying field type
+    * @return Function call to parse the aliased field
+    */
+  private def aliasedFieldParseCall(fieldName: String, underlyingType: BaseFieldType): String = {
+    underlyingType match {
+      case BooleanType => defaultAliasedFieldParseCall(fieldName, BooleanJSONParser.name, Constants.defaultBooleanCType)
+      case DynamicStringType => defaultAliasedFieldParseCall(fieldName, DynamicStringJSONParser.name, Constants.defaultCharacterCType)
+      case FixedStringType(_) => aliasedFixedStringParseCall(fieldName)
+      case NumberType => defaultAliasedFieldParseCall(fieldName, NumberJSONParser.name, Constants.defaultNumberCType)
+    }
+  }
+
+  /**
+    * Gets the default function call to parse an aliased-type field. This is for
+    * parsing underlying types that do not require additional parameters to their
+    * parse functions
+    * @param fieldName Name of field
+    * @param parseFunctionName Name of function to parse the field's underlying type
+    * @param underlyingType Field's underlying C-type
+    * @return Function call to parse the aliased field
+    */
+  private def defaultAliasedFieldParseCall(fieldName: String, parseFunctionName: String, underlyingType: String): String = {
+    // Need to cast the parameter to the type expected by the parse function
+    s"$parseFunctionName( $jsonObjectItemVar, ($underlyingType*)&$messageOutputParam->$fieldName )"
+  }
+
+  /**
+    * Gets the function call to parse an aliased fixed-string field
+    * @param fieldName Name of aliased field
+    * @return Function call to parse an aliased fixed-string field
+    */
+  private def aliasedFixedStringParseCall(fieldName: String): String = {
+    val parseFunction = FixedStringJSONParser.name
+    val cast = s"(${Constants.defaultCharacterCType}*)"
+    s"$parseFunction( $jsonObjectItemVar, $cast$messageOutputParam->$fieldName, sizeof( $messageOutputParam->$fieldName ) )"
+  }
+  
   /**
     * Gets the default function call to parse a message field. This is for field types
     * that do not require additional parameters in their parse functions
