@@ -1,0 +1,29 @@
+{
+    "url": "https://api.github.com/repos/facebook/react-native/issues/8795",
+    "number": 8795,
+    "title": "Large update to tutorial.md's refactor section.",
+    "user": {
+        "login": "Jwan622",
+        "url": "https://api.github.com/users/Jwan622"
+    },
+    "labels": [
+        {
+        "name": "CLA Signed",
+        "color": "e7e7e7"
+        },
+        {
+        "name": "GH Review: needs-revision",
+        "color": "e11d21"
+        }
+    ],
+    "assignees": [
+        {
+            "login": "user123",
+            "url": "github.com/user123"
+        },
+        {
+            "login": "abc",
+            "url": "github.com"
+        }
+    ]
+}

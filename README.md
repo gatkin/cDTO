@@ -1,8 +1,6 @@
 # cDTO - Data Transport Objects for C [![Build Status](https://travis-ci.org/gatkin/cDTO.svg?branch=master)](https://travis-ci.org/gatkin/cDTO)
 
-cDTO is a tool for defining data transport objects for the C language and generating the procedures necessary to transform them to and from various message interchange formats, such as XML and JSON. The goal of cDTO is to enable developers to build REST clients and REST services in C without writing all the boilerplate code necessary to validate and transform C data types between message formats.
-
-This project is currently incomplete and under active development. The rest of this document outlines the vision for how cDTO might work.
+cDTO is a tool for defining data transport objects for the C language and generating the procedures necessary to transform them to and from various message interchange formats, such as XML and JSON. The goal of cDTO is to enable developers to build REST clients and REST services in C without needing to write all the boilerplate code necessary to validate and transform C data types between message formats.
 
 
 ## Using cDTO
@@ -93,47 +91,65 @@ void issue_free
   );
 ```
 
-JSON deserialization and serialization procedures would be generated for the C DTO types. The serialization functions will handle validation of all JSON input strings and will return an error if the JSON does not match the expected message format.
+JSON deserialization and serialization procedures would be generated for the cDTO types. The serialization functions will handle validation of all JSON input strings and will return an error if the JSON does not match the expected message format.
 ```C
 // Header github_issues.cdto.json.h
 
 #include "github_issues.cdto.h"
 
-int label_json_parse
-  (
-  char const * json,
-  label * label_out
-  );
-
-int label_json_serialize
-  (
-  label const * label,
-  char ** json_out
-  );
-
-int user_json_parse
-  (
-  char const * json,
-  user * user_out
-  );
-
-int user_json_serialize
-  (
-  user const * user,
-  char ** json_out
-  );
-
 int issue_json_parse
-  (
-  char const * json,
-  issue * issue_out
-  );
+    (
+    char const* json_str,
+    issue* obj_out
+    );
 
 int issue_json_serialize
-  (
-  issue const * issue,
-  char ** json_out
-  );
+    (
+    issue const* obj,
+    char** json_out
+    );
+
+int issue_json_serialize_pretty
+    (
+    issue const* obj,
+    char** json_out
+    );
+
+int label_json_parse
+    (
+    char const* json_str,
+    label* obj_out
+    );
+
+int label_json_serialize
+    (
+    label const* obj,
+    char** json_out
+    );
+
+int label_json_serialize_pretty
+    (
+    label const* obj,
+    char** json_out
+    );
+
+int user_json_parse
+    (
+    char const* json_str,
+    user* obj_out
+    );
+
+int user_json_serialize
+    (
+    user const* obj,
+    char** json_out
+    );
+
+int user_json_serialize_pretty
+    (
+    user const* obj,
+    char** json_out
+    );
 ```
 We can now process JSON data received from the GitHub API
 ```C
@@ -167,14 +183,11 @@ int main()
     {
     printf("Parsed issue %s\n", issue.title);
     }
-  else
-    {
-    printf("Failed to parse issue\n");
-    }
 
   issue_free( &issue );
 
   return 0;
 }
-
 ```
+
+See the example directory for a complete, executable example of using the code generated from a cDTO definition to parse and serialize JSON data.

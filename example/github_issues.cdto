@@ -1,0 +1,18 @@
+issue {
+    number Number cType=uint32_t;
+    url String;
+    title String;
+    creator user jsonKey=user;
+    assignees Array[user];
+    labels Array[label];
+}
+
+user {
+    name String jsonKey=login;
+    url String;
+}
+
+label {
+    name String;
+    color String[6];
+}

@@ -26,10 +26,11 @@ object Main  {
   def main(args: Array[String]): Unit = {
     val parsedArgs = new ArgConfig(args)
 
-    val protocolName = parsedArgs.protocol()
+    val protocolFile = parsedArgs.protocol()
     val outputDir = parsedArgs.outputDir()
     val typeHeaders = parsedArgs.typeHeaders.getOrElse(Nil)
 
+    val protocolName = protocolNameFromPath(protocolFile)
     val definition = readProtocolDefinition(parsedArgs.protocol())
     val compilerResult = ProtocolCompiler(definition, protocolName)
 
@@ -40,6 +41,14 @@ object Main  {
         writeProtocolJSONFiles(protocol, outputDir)
       }
     }
+  }
+
+  /**
+    * Gets the name of the protocol from the provided path to the protocol
+    * definition file
+    */
+  private def protocolNameFromPath(protocolFilePath: String): String = {
+    Paths.get(protocolFilePath).getFileName.toString
   }
 
   /**
